@@ -51,11 +51,12 @@ public class ChessPiece {
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
-     * danger
+     * danger, but does take into account whether a piece is blocked
      *
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        //here we are going to filter by piece
         if (type == PieceType.BISHOP){
             return bishopMoves(board, myPosition);
         }
@@ -80,9 +81,8 @@ public class ChessPiece {
     }
 
     /**
-     * this will be all of the positions the bishop will be able to go
+     * Helper Function Controls how the Rook Moves
      *
-     * We will take the first position and basically move it by adding one to the rows and columns or doing a combination of - and positives
      * @param board
      * @param piecePosition
      * @return bMoves
@@ -103,7 +103,7 @@ public class ChessPiece {
             //first we set it to the place the piece position
             ChessPosition possibleMove = piecePosition;
 
-            //while the peice is still on the board
+            //while the piece is still on the board
             while((possibleMove.getRow() <=  8 && possibleMove.getColumn() <= 8) && (possibleMove.getRow() >=  1 && possibleMove.getColumn() >= 1)){
                 //augment the pieces in the current direction change
                 possibleMove = new ChessPosition(possibleMove.getRow() + rowChange,possibleMove.getColumn() + colChange);
@@ -116,7 +116,6 @@ public class ChessPiece {
                     break;
 
                 //here we are going to check if there is a friendly or an any blocking our way IE the piece is not null
-                //first we are going to make piece check to match with the chessBoard
                 if(ChessBoard.getPiece(possibleMove) != null) {
                     //if he is friendly(same color)
                     if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor){
@@ -178,7 +177,6 @@ public class ChessPiece {
 
 
                 //here we are going to check if there is a friendly or an any blocking our way IE the piece is not null
-                //first we are going to make piece check to match with the chessBoard
                 if(ChessBoard.getPiece(possibleMove) != null) {
                     //if he is friendly(same color)
                     if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor){
@@ -212,10 +210,10 @@ public class ChessPiece {
      * @return kMoves
      */
     private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition piecePosition){
-        //first we create a arrayList of the rook moves
+        //first we create a arrayList of the king moves
         ArrayList<ChessMove> kMoves = new ArrayList<ChessMove>();
 
-        //these are the different directions a rook can go
+        //these are the different directions a king can go
         int [][] kDirections = {{0,1},{0,-1},{-1,0},{1,0},{1,1},{-1,1},{-1,-1},{1,-1}};
 
         //for each of the directions
@@ -237,7 +235,6 @@ public class ChessPiece {
                 continue;
 
             //here we are going to check if there is a friendly or an any blocking our way IE the piece is not null
-            //first we are going to make piece check to match with the chessBoard
             if(ChessBoard.getPiece(possibleMove) != null) {
                 //if he is friendly(same color)
                 if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor){
@@ -258,6 +255,7 @@ public class ChessPiece {
         }
         return kMoves;
     }
+
 
 
     @Override
