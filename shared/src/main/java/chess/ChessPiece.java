@@ -70,6 +70,9 @@ public class ChessPiece {
 
             return queenMoves;
         }
+        else if(type == PieceType.KING){
+            return kingMoves(board, myPosition);
+        }
         else{
             //returns a null
             return new ArrayList<ChessMove>();
@@ -199,6 +202,63 @@ public class ChessPiece {
 
         return rMoves;
     }
+
+    /**
+     * Returns the kings moves
+     *
+     * Simplified version of Rook and Bishop Functions
+     * @param board
+     * @param piecePosition
+     * @return kMoves
+     */
+    private Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition piecePosition){
+        //first we create a arrayList of the rook moves
+        ArrayList<ChessMove> kMoves = new ArrayList<ChessMove>();
+
+        //these are the different directions a rook can go
+        int [][] kDirections = {{0,1},{0,-1},{-1,0},{1,0},{1,1},{-1,1},{-1,-1},{1,-1}};
+
+        //for each of the directions
+        for(int[] directions: kDirections){
+            //the first in the directions array is the row change the second is the col change
+            int rowChange = directions[0];
+            int colChange = directions[1];
+
+            //first we set it to the place the piece position
+            ChessPosition possibleMove = piecePosition;
+
+            possibleMove = new ChessPosition(possibleMove.getRow() + rowChange,possibleMove.getColumn() + colChange);
+
+            //here is an edge case catcher that makes sure we don't go too far off the board
+            int tooFarX = possibleMove.getColumn() - 1;
+            int tooFarY = possibleMove.getRow() - 1;
+
+            if((tooFarX == -1 || tooFarY ==-1) || (tooFarX == 8 || tooFarY == 8))
+                continue;
+
+            //here we are going to check if there is a friendly or an any blocking our way IE the piece is not null
+            //first we are going to make piece check to match with the chessBoard
+            if(ChessBoard.getPiece(possibleMove) != null) {
+                //if he is friendly(same color)
+                if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor){
+                    //friendly don't add it and go to the next one
+                    continue;
+                }
+                //if he is non-friendly(different color)
+                else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
+                    //add current position to possible moves because you will capture the piece and then stop
+                    kMoves.add(new ChessMove(piecePosition, possibleMove, PieceType.ROOK));
+                    System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
+                    continue;
+                }
+            }
+            //add it to the moves
+            kMoves.add(new ChessMove(piecePosition,possibleMove,PieceType.ROOK));
+            System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
+        }
+        return kMoves;
+    }
+
 
     @Override
     public boolean equals(Object o) {
