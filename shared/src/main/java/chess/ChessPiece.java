@@ -62,6 +62,14 @@ public class ChessPiece {
         else if(type == PieceType.ROOK){
             return rookMoves(board, myPosition);
         }
+        else if(type == PieceType.QUEEN){
+            //here we just combine the rook and bishop moves into the queen moves
+            ArrayList<ChessMove> queenMoves = new ArrayList<ChessMove>();
+            queenMoves.addAll(bishopMoves(board,myPosition));
+            queenMoves.addAll(rookMoves(board,myPosition));
+
+            return queenMoves;
+        }
         else{
             //returns a null
             return new ArrayList<ChessMove>();
@@ -93,16 +101,22 @@ public class ChessPiece {
             ChessPosition possibleMove = piecePosition;
 
             //while the peice is still on the board
-            while((possibleMove.getRow() <  8 && possibleMove.getColumn() < 8) && (possibleMove.getRow() >  1 && possibleMove.getColumn() > 1)){
+            while((possibleMove.getRow() <=  8 && possibleMove.getColumn() <= 8) && (possibleMove.getRow() >=  1 && possibleMove.getColumn() >= 1)){
                 //augment the pieces in the current direction change
                 possibleMove = new ChessPosition(possibleMove.getRow() + rowChange,possibleMove.getColumn() + colChange);
+
+                //here is an edge case catcher that makes sure we don't go too far off the board
+                int tooFarX = possibleMove.getColumn() - 1;
+                int tooFarY = possibleMove.getRow() - 1;
+
+                if((tooFarX == -1 || tooFarY ==-1) || (tooFarX == 8 || tooFarY == 8))
+                    break;
 
                 //here we are going to check if there is a friendly or an any blocking our way IE the piece is not null
                 //first we are going to make piece check to match with the chessBoard
                 if(ChessBoard.getPiece(possibleMove) != null) {
                     //if he is friendly(same color)
-                    if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor &&
-                            ((possibleMove.getRow() != piecePosition.getRow()) && (possibleMove.getColumn() != piecePosition.getColumn()))){
+                    if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor){
                         //friendly don't add it and go to the next one
                         break;
                     }
@@ -148,16 +162,23 @@ public class ChessPiece {
             ChessPosition possibleMove = piecePosition;
 
             //while the peice is still on the board
-            while((possibleMove.getRow() <  8 && possibleMove.getColumn() < 8) && (possibleMove.getRow() >  1 && possibleMove.getColumn() > 1)){
+            while((possibleMove.getRow() <=  8 && possibleMove.getColumn() <= 8) && (possibleMove.getRow() >=  1 && possibleMove.getColumn() >= 1)){
                 //augment the pieces in the current direction change
                 possibleMove = new ChessPosition(possibleMove.getRow() + rowChange,possibleMove.getColumn() + colChange);
+
+                //here is an edge case catcher that makes sure we don't go too far off the board
+                int tooFarX = possibleMove.getColumn() - 1;
+                int tooFarY = possibleMove.getRow() - 1;
+
+                if((tooFarX == -1 || tooFarY ==-1) || (tooFarX == 8 || tooFarY == 8))
+                    break;
+
 
                 //here we are going to check if there is a friendly or an any blocking our way IE the piece is not null
                 //first we are going to make piece check to match with the chessBoard
                 if(ChessBoard.getPiece(possibleMove) != null) {
                     //if he is friendly(same color)
-                    if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor &&
-                            ((possibleMove.getRow() != piecePosition.getRow()) && (possibleMove.getColumn() != piecePosition.getColumn()))){
+                    if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor){
                         //friendly don't add it and go to the next one
                         break;
                     }
