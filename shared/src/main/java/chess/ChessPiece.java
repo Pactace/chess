@@ -76,6 +76,9 @@ public class ChessPiece {
         else if(type == PieceType.PAWN){
             return pawnMoves(board, myPosition);
         }
+        else if(type == PieceType.KNIGHT){
+            return knightMoves(board, myPosition);
+        }
         else{
             //returns a null
             return new ArrayList<ChessMove>();
@@ -305,13 +308,34 @@ public class ChessPiece {
                     }
                 }
             }
-
         }
 
         return pMoves;
     }
 
+    private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition piecePosition) {
+        ArrayList<ChessMove> knMoves = new ArrayList<ChessMove>();
 
+        int[][] pDirections = {{1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 1}, {-2, 1}, {2, -1}, {-2, -1}};
+        for (int[] directions : pDirections) {
+            //first we assign the values
+            int y = directions[0];
+            int x = directions[1];
+
+            //then we are going to check if the ending position is out of bounds
+            if((((piecePosition.getRow() + y) < 1) || ((piecePosition.getRow() + y) > 8)) ||
+                    (((piecePosition.getColumn() + x) < 1) || ((piecePosition.getColumn() + x) > 8)))
+                continue;
+            //then as long as either the square is null or has an enemy piece we can move there
+            ChessPosition possibleMove = new ChessPosition(piecePosition.getRow() + y, piecePosition.getColumn() + x);
+            if(ChessBoard.getPiece(possibleMove) == null ||
+                    ChessBoard.getPiece(possibleMove).pieceColor != ChessBoard.getPiece(piecePosition).pieceColor){
+                knMoves.add(new ChessMove(piecePosition, possibleMove, PieceType.KNIGHT));
+                System.out.println(possibleMove.getRow() + ", " + possibleMove.getColumn());
+            }
+        }
+        return knMoves;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
