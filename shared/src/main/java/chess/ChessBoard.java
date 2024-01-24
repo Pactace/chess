@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class ChessBoard {
     private static ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
-        
+
     }
 
     /**
@@ -40,7 +40,45 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        //Ok first we are going to make an array of chessPieceTypes so we can iterate through it while we are making the board
+        ChessPiece.PieceType[] firstRow = {
+                ChessPiece.PieceType.ROOK,
+                ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.KING,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KNIGHT,
+                ChessPiece.PieceType.ROOK
+        };
+        //now we are going to cycle through the squares starting with rows
+        for(int i = 0; i < 8; i++){
+            //populating the back row of the whites
+            if(i == 0){
+                for(int j = 0; j < 7; j++){
+                    squares[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, firstRow[j]);
+                    System.out.println(squares[i][j].toString());
+                }
+            }
+            else if(i == 1){
+                for(int j = 0; j < 7; j++){
+                    squares[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+                    System.out.println(squares[i][j].toString());
+                }
+            }
+            else if(i == 6){
+                for(int j = 0; j < 7; j++){
+                    squares[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+                    System.out.println(squares[i][j].toString());
+                }
+            }
+            else if(i == 7){
+                for(int j = 0; j < 7; j++){
+                    squares[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, firstRow[j]);
+                    System.out.println(squares[i][j].toString());
+                }
+            }
+        }
     }
 
     @Override
