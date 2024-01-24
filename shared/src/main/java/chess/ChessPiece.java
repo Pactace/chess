@@ -16,7 +16,6 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
-
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
@@ -74,6 +73,9 @@ public class ChessPiece {
         else if(type == PieceType.KING){
             return kingMoves(board, myPosition);
         }
+        else if(type == PieceType.PAWN){
+            return pawnMoves(board, myPosition);
+        }
         else{
             //returns a null
             return new ArrayList<ChessMove>();
@@ -85,6 +87,7 @@ public class ChessPiece {
      *
      * @param board
      * @param piecePosition
+     * @param pieceType
      * @return bMoves
      */
     private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition piecePosition, PieceType pieceType){
@@ -145,6 +148,7 @@ public class ChessPiece {
      *
      * @param board
      * @param piecePosition
+     * @param pieceType
      * @return rMoves
      */
     private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition piecePosition, PieceType pieceType){
@@ -260,18 +264,49 @@ public class ChessPiece {
     private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition piecePosition){
         ArrayList<ChessMove> pMoves = new ArrayList<ChessMove>();
 
-        //first we are going to check what color it is if it is if white +1 to row if black -1 to row
+        int[][] pDirections = {{1,0},{1,-1},{1,1}};
+        for(int[] directions: pDirections){
+            //first we assign the values
+            int y = directions[0];
+            int x = directions [1];
+            //then depending on whether the pawn is black we will modify the y value by making it go down instead of up
+            if(ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.BLACK)
+                y = y * -1;
 
-        // with white scan the one up and to either side for enemies
-        if(ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.WHITE){
-            // fart
+            //if there is no change on the x(ie moving forward) and the row is within at least 1 away from the edges
+            if(x == 0 && (piecePosition.getRow() > 1 && piecePosition.getRow() < 8)){
+                //then we check for if the space is null if it is then go straight and add it to the collection
+                ChessPosition straight = new ChessPosition(piecePosition.getRow() + y, piecePosition.getColumn());
+                if(ChessBoard.getPiece(straight) == null) {
+                    pMoves.add(new ChessMove(piecePosition, straight, PieceType.PAWN));
+                    System.out.println(straight.getRow() + ", " + straight.getColumn());
+                    //if the pawn is in its starting position then we are also going to add another possibility of moving 1 more
+                    if((ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.BLACK  && piecePosition.getRow() == 7) ||
+                            (ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.WHITE && piecePosition.getRow() == 2)) {
+                        ChessPosition initialStraight = new ChessPosition(piecePosition.getRow() + 2*y, piecePosition.getColumn());
+                        //if that position is not already occupied then go ahead
+                        if(ChessBoard.getPiece(initialStraight) == null){
+                            pMoves.add(new ChessMove(piecePosition, initialStraight, PieceType.PAWN));
+                            System.out.println(initialStraight.getRow() + ", " + initialStraight.getColumn());
+                        }
+                    }
+                }
+            }
+            //here we are going to check the diagonal cases
+            else {
+                //we have to check first if the piece is within the board
+                if((piecePosition.getRow() > 1 && piecePosition.getRow() < 8)) {
+                    //then check if there is an enemyPiece on the piece you want to go on
+                    ChessPosition diagonal = new ChessPosition(piecePosition.getRow() + y, piecePosition.getColumn() + x);
+                    //making sure its not just a blank space and its of a different color
+                    if(ChessBoard.getPiece(diagonal) != null && ChessBoard.getPiece(diagonal).pieceColor != ChessBoard.getPiece(piecePosition).pieceColor){
+                        pMoves.add(new ChessMove(piecePosition, diagonal, PieceType.PAWN));
+                        System.out.println(diagonal.getRow() + ", " + diagonal.getColumn());
+                    }
+                }
+            }
+
         }
-
-        //if black scan down and either side for enemies
-        if(ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.BLACK){
-            // fart
-        }
-
 
         return pMoves;
     }
