@@ -58,16 +58,16 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         //here we are going to filter by piece
         if (type == PieceType.BISHOP){
-            return bishopMoves(board, myPosition);
+            return bishopMoves(board, myPosition, PieceType.BISHOP);
         }
         else if(type == PieceType.ROOK){
-            return rookMoves(board, myPosition);
+            return rookMoves(board, myPosition, PieceType.ROOK);
         }
         else if(type == PieceType.QUEEN){
             //here we just combine the rook and bishop moves into the queen moves
             ArrayList<ChessMove> queenMoves = new ArrayList<ChessMove>();
-            queenMoves.addAll(bishopMoves(board,myPosition));
-            queenMoves.addAll(rookMoves(board,myPosition));
+            queenMoves.addAll(bishopMoves(board,myPosition, PieceType.QUEEN));
+            queenMoves.addAll(rookMoves(board,myPosition, PieceType.QUEEN));
 
             return queenMoves;
         }
@@ -87,7 +87,7 @@ public class ChessPiece {
      * @param piecePosition
      * @return bMoves
      */
-    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition piecePosition){
+    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition piecePosition, PieceType pieceType){
         //first we create a arrayList of the bishop moves
         ArrayList<ChessMove> bMoves = new ArrayList<ChessMove>();
 
@@ -125,14 +125,14 @@ public class ChessPiece {
                     //if he is non-friendly(different color)
                     else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
                         //add current position to possible moves because you will capture the piece and then stop
-                        bMoves.add(new ChessMove(piecePosition, possibleMove, PieceType.BISHOP));
+                        bMoves.add(new ChessMove(piecePosition, possibleMove, pieceType));
                         System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
                         break;
                     }
                 }
 
                 //add it to the moves
-                bMoves.add(new ChessMove(piecePosition,possibleMove,PieceType.BISHOP));
+                bMoves.add(new ChessMove(piecePosition,possibleMove,pieceType));
                 System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
             }
         }
@@ -147,7 +147,7 @@ public class ChessPiece {
      * @param piecePosition
      * @return rMoves
      */
-    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition piecePosition){
+    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition piecePosition, PieceType pieceType){
         //first we create a arrayList of the rook moves
         ArrayList<ChessMove> rMoves = new ArrayList<ChessMove>();
 
@@ -186,14 +186,14 @@ public class ChessPiece {
                     //if he is non-friendly(different color)
                     else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
                         //add current position to possible moves because you will capture the piece and then stop
-                        rMoves.add(new ChessMove(piecePosition, possibleMove, PieceType.ROOK));
+                        rMoves.add(new ChessMove(piecePosition, possibleMove, pieceType));
                         System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
                         break;
                     }
                 }
 
                 //add it to the moves
-                rMoves.add(new ChessMove(piecePosition,possibleMove,PieceType.ROOK));
+                rMoves.add(new ChessMove(piecePosition,possibleMove, pieceType));
                 System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
             }
         }
@@ -244,18 +244,37 @@ public class ChessPiece {
                 //if he is non-friendly(different color)
                 else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
                     //add current position to possible moves because you will capture the piece and then stop
-                    kMoves.add(new ChessMove(piecePosition, possibleMove, PieceType.ROOK));
+                    kMoves.add(new ChessMove(piecePosition, possibleMove, PieceType.KING));
                     System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
                     continue;
                 }
             }
             //add it to the moves
-            kMoves.add(new ChessMove(piecePosition,possibleMove,PieceType.ROOK));
+            kMoves.add(new ChessMove(piecePosition,possibleMove,PieceType.KING));
             System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
         }
         return kMoves;
     }
 
+
+    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition piecePosition){
+        ArrayList<ChessMove> pMoves = new ArrayList<ChessMove>();
+
+        //first we are going to check what color it is if it is if white +1 to row if black -1 to row
+
+        // with white scan the one up and to either side for enemies
+        if(ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.WHITE){
+            // fart
+        }
+
+        //if black scan down and either side for enemies
+        if(ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.BLACK){
+            // fart
+        }
+
+
+        return pMoves;
+    }
 
 
     @Override
