@@ -9,7 +9,7 @@ import java.util.Arrays;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    private static ChessPiece[][] squares = new ChessPiece[8][8];
+    private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
 
     }
@@ -31,7 +31,7 @@ public class ChessBoard {
      * @return Either the piece at the position, or null if no piece is at that
      * position
      */
-    public static ChessPiece getPiece(ChessPosition position) {
+    public ChessPiece getPiece(ChessPosition position) {
         return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
@@ -55,25 +55,25 @@ public class ChessBoard {
         for(int i = 0; i < 8; i++){
             //populating the back row of the whites
             if(i == 0){
-                for(int j = 0; j < 7; j++){
+                for(int j = 0; j < 8; j++){
                     squares[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, firstRow[j]);
                     System.out.println(squares[i][j].toString());
                 }
             }
             else if(i == 1){
-                for(int j = 0; j < 7; j++){
+                for(int j = 0; j < 8; j++){
                     squares[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
                     System.out.println(squares[i][j].toString());
                 }
             }
             else if(i == 6){
-                for(int j = 0; j < 7; j++){
+                for(int j = 0; j < 8; j++){
                     squares[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
                     System.out.println(squares[i][j].toString());
                 }
             }
             else if(i == 7){
-                for(int j = 0; j < 7; j++){
+                for(int j = 0; j < 8; j++){
                     squares[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, firstRow[j]);
                     System.out.println(squares[i][j].toString());
                 }

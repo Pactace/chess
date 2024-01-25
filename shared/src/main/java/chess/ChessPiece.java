@@ -122,14 +122,14 @@ public class ChessPiece {
                     break;
 
                 //here we are going to check if there is a friendly or an any blocking our way IE the piece is not null
-                if(ChessBoard.getPiece(possibleMove) != null) {
+                if(board.getPiece(possibleMove) != null) {
                     //if he is friendly(same color)
-                    if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor){
+                    if (this.pieceColor == board.getPiece(possibleMove).pieceColor){
                         //friendly don't add it and go to the next one
                         break;
                     }
                     //if he is non-friendly(different color)
-                    else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
+                    else if (this.pieceColor != board.getPiece(possibleMove).pieceColor) {
                         //add current position to possible moves because you will capture the piece and then stop
                         bMoves.add(new ChessMove(piecePosition, possibleMove, null));
                         System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
@@ -183,14 +183,14 @@ public class ChessPiece {
 
 
                 //here we are going to check if there is a friendly or an any blocking our way IE the piece is not null
-                if(ChessBoard.getPiece(possibleMove) != null) {
+                if(board.getPiece(possibleMove) != null) {
                     //if he is friendly(same color)
-                    if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor){
+                    if (this.pieceColor == board.getPiece(possibleMove).pieceColor){
                         //friendly don't add it and go to the next one
                         break;
                     }
                     //if he is non-friendly(different color)
-                    else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
+                    else if (this.pieceColor != board.getPiece(possibleMove).pieceColor) {
                         //add current position to possible moves because you will capture the piece and then stop
                         rMoves.add(new ChessMove(piecePosition, possibleMove, null));
                         System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
@@ -241,14 +241,14 @@ public class ChessPiece {
                 continue;
 
             //here we are going to check if there is a friendly or an any blocking our way IE the piece is not null
-            if(ChessBoard.getPiece(possibleMove) != null) {
+            if(board.getPiece(possibleMove) != null) {
                 //if he is friendly(same color)
-                if (this.pieceColor == ChessBoard.getPiece(possibleMove).pieceColor){
+                if (this.pieceColor == board.getPiece(possibleMove).pieceColor){
                     //friendly don't add it and go to the next one
                     continue;
                 }
                 //if he is non-friendly(different color)
-                else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
+                else if (this.pieceColor != board.getPiece(possibleMove).pieceColor) {
                     //add current position to possible moves because you will capture the piece and then stop
                     kMoves.add(new ChessMove(piecePosition, possibleMove, null));
                     System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
@@ -272,7 +272,7 @@ public class ChessPiece {
             int y = directions[0];
             int x = directions [1];
             //then depending on whether the pawn is black we will modify the y value by making it go down instead of up
-            if(ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.BLACK)
+            if(board.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.BLACK)
                 y = y * -1;
 
             //if there is no change on the x(ie moving forward) and the row is within at least 1 away from the edges
@@ -280,7 +280,7 @@ public class ChessPiece {
                 //then we check for if the space is null if it is then go straight and add it to the collection
                 ChessPosition straight = new ChessPosition(piecePosition.getRow() + y, piecePosition.getColumn());
 
-                if(ChessBoard.getPiece(straight) == null) {
+                if(board.getPiece(straight) == null) {
                     if((straight.getRow() == 1 || straight.getRow() == 8)){
                         pMoves.add(new ChessMove(piecePosition, straight, PieceType.BISHOP));
                         pMoves.add(new ChessMove(piecePosition, straight, PieceType.ROOK));
@@ -293,12 +293,12 @@ public class ChessPiece {
                     }
 
                     //if the pawn is in its starting position then we are also going to add another possibility of moving 1 more
-                    if((ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.BLACK  && piecePosition.getRow() == 7) ||
-                            (ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.WHITE && piecePosition.getRow() == 2)) {
+                    if((board.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.BLACK  && piecePosition.getRow() == 7) ||
+                            (board.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.WHITE && piecePosition.getRow() == 2)) {
                         ChessPosition initialStraight = new ChessPosition(piecePosition.getRow() + 2*y, piecePosition.getColumn());
 
                         //if that position is not already occupied then go ahead
-                        if(ChessBoard.getPiece(initialStraight) == null){
+                        if(board.getPiece(initialStraight) == null){
                             pMoves.add(new ChessMove(piecePosition, initialStraight, null));
                             System.out.println(initialStraight.getRow() + ", " + initialStraight.getColumn());
                         }
@@ -312,7 +312,7 @@ public class ChessPiece {
                     //then check if there is an enemyPiece on the piece you want to go on
                     ChessPosition diagonal = new ChessPosition(piecePosition.getRow() + y, piecePosition.getColumn() + x);
                     //making sure its not just a blank space and its of a different color
-                    if(ChessBoard.getPiece(diagonal) != null && ChessBoard.getPiece(diagonal).pieceColor != ChessBoard.getPiece(piecePosition).pieceColor){
+                    if(board.getPiece(diagonal) != null && board.getPiece(diagonal).pieceColor != board.getPiece(piecePosition).pieceColor){
                         if((diagonal.getRow() == 1 || diagonal.getRow() == 8)){
                             pMoves.add(new ChessMove(piecePosition, diagonal, PieceType.BISHOP));
                             pMoves.add(new ChessMove(piecePosition, diagonal, PieceType.ROOK));
@@ -346,8 +346,8 @@ public class ChessPiece {
                 continue;
             //then as long as either the square is null or has an enemy piece we can move there
             ChessPosition possibleMove = new ChessPosition(piecePosition.getRow() + y, piecePosition.getColumn() + x);
-            if(ChessBoard.getPiece(possibleMove) == null ||
-                    ChessBoard.getPiece(possibleMove).pieceColor != ChessBoard.getPiece(piecePosition).pieceColor){
+            if(board.getPiece(possibleMove) == null ||
+                    board.getPiece(possibleMove).pieceColor != board.getPiece(piecePosition).pieceColor){
                 knMoves.add(new ChessMove(piecePosition, possibleMove, null));
                 System.out.println(possibleMove.getRow() + ", " + possibleMove.getColumn());
             }
