@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 import static java.lang.System.*;
@@ -57,16 +58,16 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         //here we are going to filter by piece
         if (type == PieceType.BISHOP){
-            return bishopMoves(board, myPosition, PieceType.BISHOP);
+            return bishopMoves(board, myPosition);
         }
         else if(type == PieceType.ROOK){
-            return rookMoves(board, myPosition, PieceType.ROOK);
+            return rookMoves(board, myPosition);
         }
         else if(type == PieceType.QUEEN){
             //here we just combine the rook and bishop moves into the queen moves
             ArrayList<ChessMove> queenMoves = new ArrayList<ChessMove>();
-            queenMoves.addAll(bishopMoves(board,myPosition, PieceType.QUEEN));
-            queenMoves.addAll(rookMoves(board,myPosition, PieceType.QUEEN));
+            queenMoves.addAll(bishopMoves(board,myPosition));
+            queenMoves.addAll(rookMoves(board,myPosition));
 
             return queenMoves;
         }
@@ -90,12 +91,11 @@ public class ChessPiece {
      *
      * @param board
      * @param piecePosition
-     * @param pieceType
      * @return bMoves
      */
-    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition piecePosition, PieceType pieceType){
+    private Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition piecePosition){
         //first we create a arrayList of the bishop moves
-        ArrayList<ChessMove> bMoves = new ArrayList<ChessMove>();
+        HashSet<ChessMove> bMoves = new HashSet<>();
 
         //these are the different directions a bishop can go
         int [][] bDirections = {{1,1},{-1,1},{-1,-1},{1,-1}};
@@ -131,14 +131,14 @@ public class ChessPiece {
                     //if he is non-friendly(different color)
                     else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
                         //add current position to possible moves because you will capture the piece and then stop
-                        bMoves.add(new ChessMove(piecePosition, possibleMove, pieceType));
+                        bMoves.add(new ChessMove(piecePosition, possibleMove, null));
                         System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
                         break;
                     }
                 }
 
                 //add it to the moves
-                bMoves.add(new ChessMove(piecePosition,possibleMove,pieceType));
+                bMoves.add(new ChessMove(piecePosition,possibleMove, null));
                 System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
             }
         }
@@ -151,10 +151,9 @@ public class ChessPiece {
      *
      * @param board
      * @param piecePosition
-     * @param pieceType
      * @return rMoves
      */
-    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition piecePosition, PieceType pieceType){
+    private Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition piecePosition){
         //first we create a arrayList of the rook moves
         ArrayList<ChessMove> rMoves = new ArrayList<ChessMove>();
 
@@ -193,14 +192,14 @@ public class ChessPiece {
                     //if he is non-friendly(different color)
                     else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
                         //add current position to possible moves because you will capture the piece and then stop
-                        rMoves.add(new ChessMove(piecePosition, possibleMove, pieceType));
+                        rMoves.add(new ChessMove(piecePosition, possibleMove, null));
                         System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
                         break;
                     }
                 }
 
                 //add it to the moves
-                rMoves.add(new ChessMove(piecePosition,possibleMove, pieceType));
+                rMoves.add(new ChessMove(piecePosition,possibleMove, null));
                 System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
             }
         }
@@ -251,13 +250,13 @@ public class ChessPiece {
                 //if he is non-friendly(different color)
                 else if (this.pieceColor != ChessBoard.getPiece(possibleMove).pieceColor) {
                     //add current position to possible moves because you will capture the piece and then stop
-                    kMoves.add(new ChessMove(piecePosition, possibleMove, PieceType.KING));
+                    kMoves.add(new ChessMove(piecePosition, possibleMove, null));
                     System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
                     continue;
                 }
             }
             //add it to the moves
-            kMoves.add(new ChessMove(piecePosition,possibleMove,PieceType.KING));
+            kMoves.add(new ChessMove(piecePosition,possibleMove,null));
             System.out.println(possibleMove.getRow() + ", " +possibleMove.getColumn());
         }
         return kMoves;
@@ -280,16 +279,27 @@ public class ChessPiece {
             if(x == 0 && (piecePosition.getRow() > 1 && piecePosition.getRow() < 8)){
                 //then we check for if the space is null if it is then go straight and add it to the collection
                 ChessPosition straight = new ChessPosition(piecePosition.getRow() + y, piecePosition.getColumn());
+
                 if(ChessBoard.getPiece(straight) == null) {
-                    pMoves.add(new ChessMove(piecePosition, straight, PieceType.PAWN));
-                    System.out.println(straight.getRow() + ", " + straight.getColumn());
+                    if((straight.getRow() == 1 || straight.getRow() == 8)){
+                        pMoves.add(new ChessMove(piecePosition, straight, PieceType.BISHOP));
+                        pMoves.add(new ChessMove(piecePosition, straight, PieceType.ROOK));
+                        pMoves.add(new ChessMove(piecePosition, straight, PieceType.KNIGHT));
+                        pMoves.add(new ChessMove(piecePosition, straight, PieceType.QUEEN));
+                    }
+                    else{
+                        pMoves.add(new ChessMove(piecePosition, straight, null));
+                        System.out.println(straight.getRow() + ", " + straight.getColumn());
+                    }
+
                     //if the pawn is in its starting position then we are also going to add another possibility of moving 1 more
                     if((ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.BLACK  && piecePosition.getRow() == 7) ||
                             (ChessBoard.getPiece(piecePosition).pieceColor == ChessGame.TeamColor.WHITE && piecePosition.getRow() == 2)) {
                         ChessPosition initialStraight = new ChessPosition(piecePosition.getRow() + 2*y, piecePosition.getColumn());
+
                         //if that position is not already occupied then go ahead
                         if(ChessBoard.getPiece(initialStraight) == null){
-                            pMoves.add(new ChessMove(piecePosition, initialStraight, PieceType.PAWN));
+                            pMoves.add(new ChessMove(piecePosition, initialStraight, null));
                             System.out.println(initialStraight.getRow() + ", " + initialStraight.getColumn());
                         }
                     }
@@ -303,8 +313,16 @@ public class ChessPiece {
                     ChessPosition diagonal = new ChessPosition(piecePosition.getRow() + y, piecePosition.getColumn() + x);
                     //making sure its not just a blank space and its of a different color
                     if(ChessBoard.getPiece(diagonal) != null && ChessBoard.getPiece(diagonal).pieceColor != ChessBoard.getPiece(piecePosition).pieceColor){
-                        pMoves.add(new ChessMove(piecePosition, diagonal, PieceType.PAWN));
-                        System.out.println(diagonal.getRow() + ", " + diagonal.getColumn());
+                        if((diagonal.getRow() == 1 || diagonal.getRow() == 8)){
+                            pMoves.add(new ChessMove(piecePosition, diagonal, PieceType.BISHOP));
+                            pMoves.add(new ChessMove(piecePosition, diagonal, PieceType.ROOK));
+                            pMoves.add(new ChessMove(piecePosition, diagonal, PieceType.KNIGHT));
+                            pMoves.add(new ChessMove(piecePosition, diagonal, PieceType.QUEEN));
+                        }
+                        else{
+                            pMoves.add(new ChessMove(piecePosition, diagonal, null));
+                            System.out.println(diagonal.getRow() + ", " + diagonal.getColumn());
+                        }
                     }
                 }
             }
@@ -330,12 +348,13 @@ public class ChessPiece {
             ChessPosition possibleMove = new ChessPosition(piecePosition.getRow() + y, piecePosition.getColumn() + x);
             if(ChessBoard.getPiece(possibleMove) == null ||
                     ChessBoard.getPiece(possibleMove).pieceColor != ChessBoard.getPiece(piecePosition).pieceColor){
-                knMoves.add(new ChessMove(piecePosition, possibleMove, PieceType.KNIGHT));
+                knMoves.add(new ChessMove(piecePosition, possibleMove, null));
                 System.out.println(possibleMove.getRow() + ", " + possibleMove.getColumn());
             }
         }
         return knMoves;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
