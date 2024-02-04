@@ -111,9 +111,15 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         //if this team is in check and there are no valid moves for any of this teams pieces
         if(isInCheck(teamTurn)){
-            return true;
+            //for each friendly in the friendlyLocations
+            for(ChessPosition friendlyLocation: friendlyLocations){
+                //if the there is at least one set of moves from the friendly team that is not null then there is no checkmate
+                if(validMoves(friendlyLocation) != null){
+                    return false;
+                }
+            }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -127,9 +133,14 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if(getTeamTurn() == teamColor){
-            return true;
+            for(ChessPosition friendlyLocation: friendlyLocations){
+                //if the there is at least one set of moves from the friendly team that is not null then there is no stalemate
+                if(validMoves(friendlyLocation) != null){
+                    return false;
+                }
+            }
         }
-        return false;
+        return true;
     }
 
     /**
