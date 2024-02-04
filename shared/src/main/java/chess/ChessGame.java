@@ -13,9 +13,11 @@ public class ChessGame {
     private ChessBoard board;
     private TeamColor teamTurn;
     private ChessMove move;
-    public ChessGame() {
 
-    }
+    private ChessPosition[] enemyLocations;
+    private ChessPosition[] friendlyLocations;
+    private ChessPosition thisKingPostion;
+    public ChessGame() { }
 
     /**
      * @return Which team's turn it is
@@ -80,11 +82,24 @@ public class ChessGame {
     /**
      * Determines if the given team is in check
      *
+     * Implementation: if any of the opposing teams moves include this teams kings current position, then return true
+     *
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        //for each enemy in the enemyLocations
+        for(ChessPosition enemyLocation: enemyLocations){
+            //set the enemyPiece that one and go through each of its moves
+            ChessPiece enemyPiece = board.getPiece(enemyLocation);
+            for(ChessMove move : enemyPiece.pieceMoves(board,enemyLocation)){
+                if(move.getEndPosition() == thisKingPostion){
+                    //if the location of the move is the same as the thisKingPosition then return true
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -94,18 +109,27 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        //if this team is in check and there are no valid moves for any of this teams pieces
+        if(isInCheck(teamTurn)){
+            return true;
+        }
+        return false;
     }
 
     /**
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves
      *
+     * Implementation: if its this teams turn and they have no valid moves
+     *
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if(getTeamTurn() == teamColor){
+            return true;
+        }
+        return false;
     }
 
     /**
