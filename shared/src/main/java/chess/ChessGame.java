@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -9,6 +10,9 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    private ChessBoard board;
+    private TeamColor teamTurn;
+    private ChessMove move;
     public ChessGame() {
 
     }
@@ -17,7 +21,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return teamTurn;
     }
 
     /**
@@ -26,7 +30,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        this.teamTurn = team;
     }
 
     /**
@@ -45,8 +49,22 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        //what I am going to do in this one is
-        throw new RuntimeException("Not implemented");
+        //what I am going to do in this one is; cycle through all the moves of the selected piece and if any of them put the king in danger
+        //it's an invalid move
+        HashSet<ChessMove> validMoves = new HashSet<>();
+        if(board.getPiece(startPosition) != null){
+            //first we set the selected moves
+            ChessPiece selectedPiece = board.getPiece(startPosition);
+            //cycle through each of the moves
+            for(ChessMove move: selectedPiece.pieceMoves(board,startPosition)){
+                //if the king is not in check then add that to the valid moves
+                if(!isInCheck(teamTurn)){
+                    validMoves.add(move);
+                }
+            }
+        }
+        //this either returns an empty set or a set that has been populated
+        return validMoves;
     }
 
     /**
@@ -56,7 +74,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        this.move = move;
     }
 
     /**
@@ -96,7 +114,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -105,6 +123,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return this.board;
     }
 }
