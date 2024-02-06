@@ -12,12 +12,10 @@ import java.util.HashSet;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor teamTurn;
-    private ChessMove move;
 
-    private ChessPosition[] enemyLocations;
-    private ChessPosition[] friendlyLocations;
-    private ChessPosition thisKingPostion;
-    public ChessGame() { }
+    public ChessGame() {
+        //here I just want to initiate the
+    }
 
     /**
      * @return Which team's turn it is
@@ -76,7 +74,66 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        this.move = move;
+        boolean valid = false;
+        //first things first we need to get the piece that made the move
+        ChessPiece movedPiece = board.getPiece(move.getStartPosition());
+
+        //next we are going to check if the proposed move is within the proposed piece
+        for(ChessMove validMove : validMoves(move.getStartPosition())){
+            //if the ending is the same then that means it's a valid move
+            if(validMove.getEndPosition() == move.getEndPosition()){
+                valid = true;
+            }
+        }
+        //if the move is valid then do the move
+        if(valid){
+            //do the move
+        }
+        else{
+            throw new InvalidMoveException();
+        }
+    }
+
+    /**
+     * This iis a helper function that scans the board for the current kings position
+     */
+    private ChessPosition findKing(){
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                if(board.getPiece(new ChessPosition(i,j)).getTeamColor() == teamTurn
+                        && board.getPiece(new ChessPosition(i,j)).getPieceType() == ChessPiece.PieceType.KING){
+                    return new ChessPosition(i,j);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * this is a helper function that scans for all the pieces on the opposite team
+     */
+    private HashSet<ChessPosition> findEnemyPieces(){
+        HashSet<ChessPosition> enemyPieces = new HashSet<>();
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                if(board.getPiece(new ChessPosition(i,j)).getTeamColor() != teamTurn){
+                    enemyPieces.add(new ChessPosition(i,j));
+                }
+            }
+        }
+        return enemyPieces;
+    }
+
+    private HashSet<ChessPosition> findFriendlyPieces(){
+        HashSet<ChessPosition> friendlyPieces = new HashSet<>();
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                if(board.getPiece(new ChessPosition(i,j)).getTeamColor() == teamTurn){
+                    friendlyPieces.add(new ChessPosition(i,j));
+                }
+            }
+        }
+        return friendlyPieces;
     }
 
     /**
@@ -88,12 +145,13 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        HashSet<ChessPosition> enemyLocations = findEnemyPieces();
         //for each enemy in the enemyLocations
         for(ChessPosition enemyLocation: enemyLocations){
             //set the enemyPiece that one and go through each of its moves
             ChessPiece enemyPiece = board.getPiece(enemyLocation);
             for(ChessMove move : enemyPiece.pieceMoves(board,enemyLocation)){
-                if(move.getEndPosition() == thisKingPostion){
+                if(move.getEndPosition() == findKing()){
                     //if the location of the move is the same as the thisKingPosition then return true
                     return true;
                 }
@@ -110,6 +168,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         //if this team is in check and there are no valid moves for any of this teams pieces
+        HashSet<ChessPosition> friendlyLocations = findEnemyPieces();
         if(isInCheck(teamTurn)){
             //for each friendly in the friendlyLocations
             for(ChessPosition friendlyLocation: friendlyLocations){
@@ -132,6 +191,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        HashSet<ChessPosition> friendlyLocations = findFriendlyPieces();
         if(getTeamTurn() == teamColor){
             for(ChessPosition friendlyLocation: friendlyLocations){
                 //if the there is at least one set of moves from the friendly team that is not null then there is no stalemate
