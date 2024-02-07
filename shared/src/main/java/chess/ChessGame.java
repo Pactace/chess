@@ -57,40 +57,22 @@ public class ChessGame {
             ChessPiece selectedPiece = board.getPiece(startPosition);
             //cycle through each of the moves
             for(ChessMove move: selectedPiece.pieceMoves(board,startPosition)){
-                //here we are going to make sure the move doesn't put our king in check
-                ChessBoard copyBoard = board;
-                ChessPiece movedPiece = copyBoard.getPiece(move.getStartPosition());
-                copyBoard.addPiece(move.getStartPosition(), null);
-                copyBoard.addPiece(move.getEndPosition(), movedPiece);
-                HashSet<ChessPosition> enemyLocations = findEnemyPieces(teamTurn, copyBoard);
-                //if the team isnt in check make sure they stay that way
-                if(!isInCheck(teamTurn)){
-                    //for each enemy in the enemyLocations
-                    for(ChessPosition enemyLocation: enemyLocations){
-                        //set the enemyPiece that one and go through each of its moves
-                        ChessPiece enemyPiece = copyBoard.getPiece(enemyLocation);
-                        for(ChessMove futureMove : enemyPiece.pieceMoves(copyBoard,enemyLocation)){
-                            if(futureMove.getEndPosition() != findKing(teamTurn, copyBoard)){
-                                validMoves.add(move);
-                            }
-                        }
-                    }
-                }
-                //the only viable moves are for them to get out of check
-                else{
-                    //for each enemy in the enemyLocations
-                    for(ChessPosition enemyLocation: enemyLocations){
-                        //set the enemyPiece that one and go through each of its moves
-                        ChessPiece enemyPiece = copyBoard.getPiece(enemyLocation);
-                        for(ChessMove futureMove : enemyPiece.pieceMoves(copyBoard,enemyLocation)){
-                            if(futureMove.getEndPosition() != findKing(teamTurn, copyBoard)){
-                                validMoves.add(move);
-                            }
-                        }
-                    }
-                }
+                //first we are going to make a backup board
+                //ChessBoard backupBoard = board;
 
+                //next we are going to make the move
+                //board.addPiece(move.getStartPosition(), null);
+                //board.addPiece(move.getEndPosition(), selectedPiece);
+
+                //next we are going to only add it if it's not in check
+                //if(!isInCheck(teamTurn)){
+                    validMoves.add(move);
+                //}
+
+                //then we are going to revert back to the old way
+                //board = backupBoard;
             }
+
         }
         //this either returns an empty set or a set that has been populated
         return validMoves;
@@ -189,6 +171,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        //first we have to check what the
         HashSet<ChessPosition> enemyLocations = findEnemyPieces(teamColor, board);
 
         //for each enemy in the enemyLocations
@@ -196,8 +179,8 @@ public class ChessGame {
             //set the enemyPiece that one and go through each of its moves
             ChessPiece enemyPiece = board.getPiece(enemyLocation);
             for(ChessMove move : enemyPiece.pieceMoves(board,enemyLocation)){
-                if(move.getEndPosition() == findKing(teamColor, board)){
-                    //if the location of the move is the same as the thisKingPosition then return true
+                if((move.getEndPosition().getRow() == findKing(teamColor,board).getRow()) &&
+                        (move.getEndPosition().getColumn() == findKing(teamColor,board).getColumn())){
                     return true;
                 }
             }
