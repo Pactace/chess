@@ -58,24 +58,46 @@ public class ChessGame {
             //cycle through each of the moves
             for(ChessMove move: selectedPiece.pieceMoves(board,startPosition)){
                 //first we are going to make a backup board
-                //ChessBoard backupBoard = board;
+                ChessBoard backupBoard = deepCopyBoard(board);
 
                 //next we are going to make the move
-                //board.addPiece(move.getStartPosition(), null);
-                //board.addPiece(move.getEndPosition(), selectedPiece);
+                board.addPiece(move.getStartPosition(), null);
+                board.addPiece(move.getEndPosition(), selectedPiece);
 
                 //next we are going to only add it if it's not in check
-                //if(!isInCheck(teamTurn)){
+                if(!isInCheck(teamTurn)){
                     validMoves.add(move);
-                //}
+                }
 
                 //then we are going to revert back to the old way
-                //board = backupBoard;
+                board = deepCopyBoard(backupBoard);
             }
 
         }
         //this either returns an empty set or a set that has been populated
         return validMoves;
+    }
+
+    private ChessBoard deepCopyBoard(ChessBoard board){
+        //first we create the copied board we will return
+        ChessBoard copiedBoard = new ChessBoard();
+        //for each space in the board
+        for(int i = 1; i <= 8; i++){
+            for(int j = 1; j <= 8; j++){
+                //we are going to look at each square
+                ChessPosition square = new ChessPosition(i,j);
+
+                //if the boards spot is not null
+                if(board.getPiece(square) != null){
+                    //then we will look at the piece and make a new one
+                    ChessPiece copiedPiece = new ChessPiece(board.getPiece(square).getTeamColor(),
+                            board.getPiece(square).getPieceType());
+                    //we will add that piece to the copied board
+                    copiedBoard.addPiece(square, copiedPiece);
+                }
+            }
+        }
+        return copiedBoard;
     }
 
     /**
@@ -174,14 +196,16 @@ public class ChessGame {
         //first we have to check what the
         HashSet<ChessPosition> enemyLocations = findEnemyPieces(teamColor, board);
 
-        //for each enemy in the enemyLocations
-        for(ChessPosition enemyLocation: enemyLocations){
-            //set the enemyPiece that one and go through each of its moves
-            ChessPiece enemyPiece = board.getPiece(enemyLocation);
-            for(ChessMove move : enemyPiece.pieceMoves(board,enemyLocation)){
-                if((move.getEndPosition().getRow() == findKing(teamColor,board).getRow()) &&
-                        (move.getEndPosition().getColumn() == findKing(teamColor,board).getColumn())){
-                    return true;
+        if(findKing(teamColor,board) != null) {
+            //for each enemy in the enemyLocations
+            for(ChessPosition enemyLocation: enemyLocations){
+                //set the enemyPiece that one and go through each of its moves
+                ChessPiece enemyPiece = board.getPiece(enemyLocation);
+                for(ChessMove move : enemyPiece.pieceMoves(board,enemyLocation)){
+                    if((move.getEndPosition().getRow() == findKing(teamColor,board).getRow()) &&
+                            (move.getEndPosition().getColumn() == findKing(teamColor,board).getColumn())){
+                        return true;
+                    }
                 }
             }
         }
