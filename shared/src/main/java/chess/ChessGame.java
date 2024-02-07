@@ -57,6 +57,7 @@ public class ChessGame {
             ChessPiece selectedPiece = board.getPiece(startPosition);
             //cycle through each of the moves
             for(ChessMove move: selectedPiece.pieceMoves(board,startPosition)){
+                teamTurn = selectedPiece.getTeamColor();
                 //first we are going to make a backup board
                 ChessBoard backupBoard = deepCopyBoard(board);
 
@@ -122,8 +123,14 @@ public class ChessGame {
 
         //if the move is valid then do the move
         if(valid){
+            if(move.getPromotionPiece() != null){
+                ChessPiece newPiece = new ChessPiece(movedPiece.getTeamColor(), move.getPromotionPiece());
+                board.addPiece(move.getEndPosition(), newPiece);
+            }
+            else{
+                board.addPiece(move.getEndPosition(),movedPiece);
+            }
             board.addPiece(move.getStartPosition(), null);
-            board.addPiece(move.getEndPosition(),movedPiece);
 
             //switch sides
             if(teamTurn == TeamColor.WHITE)
@@ -172,12 +179,14 @@ public class ChessGame {
         return enemyPieces;
     }
 
-    private HashSet<ChessPosition> findFriendlyPieces(){
-        HashSet<ChessPosition> friendlyPieces = new HashSet<>();
+    private HashSet<ChessPosition> findFriendlyPieces(TeamColor teamColor){
+        HashSet<ChessPosition> friendlyPieces= new HashSet<>();
         for(int i = 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
-                if(board.getPiece(new ChessPosition(i,j)).getTeamColor() == teamTurn){
-                    friendlyPieces.add(new ChessPosition(i,j));
+                if(board.getPiece(new ChessPosition(i,j)) != null){
+                    if(board.getPiece(new ChessPosition(i,j)).getTeamColor() == teamColor){
+                        friendlyPieces.add(new ChessPosition(i,j));
+                    }
                 }
             }
         }
@@ -219,18 +228,12 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        //if this team is in check and there are no valid moves for any of this teams pieces
-        HashSet<ChessPosition> friendlyLocations = findEnemyPieces(teamTurn, board);
-        if(isInCheck(teamTurn)){
-            //for each friendly in the friendlyLocations
-            for(ChessPosition friendlyLocation: friendlyLocations){
-                //if the there is at least one set of moves from the friendly team that is not null then there is no checkmate
-                if(validMoves(friendlyLocation) != null){
-                    return false;
-                }
+        if(isInCheck(teamColor)){
+            if(isInStalemate(teamColor)){
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**
@@ -243,13 +246,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        HashSet<ChessPosition> friendlyLocations = findFriendlyPieces();
-        if(getTeamTurn() == teamColor){
-            for(ChessPosition friendlyLocation: friendlyLocations){
-                //if the there is at least one set of moves from the friendly team that is not null then there is no stalemate
-                if(validMoves(friendlyLocation) != null){
-                    return false;
-                }
+        HashSet<ChessPosition> friendlyLocations = findFriendlyPieces(teamColor);
+        for(ChessPosition friendlyLocation: friendlyLocations){
+            //if the there is at least one set of moves from the friendly team that is not null then there is no stalemate
+            if(!validMoves(friendlyLocation).isEmpty()){
+                return false;
             }
         }
         return true;
