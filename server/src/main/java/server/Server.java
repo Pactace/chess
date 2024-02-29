@@ -1,23 +1,31 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import dataAccess.AuthDAO;
+import dataAccess.GameDAO;
 import dataAccess.UserDAO;
-import model.UserData;
 import model.GameData;
+import model.UserData;
 import model.AuthData;
-import service.UserService;
+import service.AlreadyTakenException;
+import service.BadRequestException;
+import service.UnauthorizedException;
+import service.Service;
 import spark.*;
 
-import java.util.Map;
+import java.util.Collection;
 
 public class Server {
-    private final UserService userService;
+    private final Service Service;
     UserDAO userDAO = new UserDAO();
     AuthDAO authDAO = new AuthDAO();
+    GameDAO gameDAO = new GameDAO();
 
     public Server(){
-        userService = new UserService(userDAO, authDAO);
+        Service = new Service(userDAO, authDAO, gameDAO);
     }
 
     public static void main(String[] args) {
@@ -30,9 +38,11 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
+        Spark.delete("/db", this::clear);
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
+        Spark.post("/game", this::createGame);
 
 
 
@@ -45,36 +55,145 @@ public class Server {
         Spark.awaitStop();
     }
 
+    private Object clear(Request req, Response res) {
+        try{
+            Service.clear();
+            return new Gson().toJson(new ErrorMessageResponse("["+ res.status() + "]"));
+        }
+        catch(Exception e){
+            res.status(500);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+
+    }
+
     private Object register(Request req, Response res) {
         //first we parse the user data
         UserData userData = new Gson().fromJson(req.body(), UserData.class);
 
+        if(userData.username() == null || userData.password() == null || userData.email() == null){
+            res.status(400);
+            BadRequestException errorMessage = new BadRequestException();
+            return new Gson().toJson(new ErrorMessageResponse(errorMessage.getMessage()));
+        }
+
         //then we set the authData to the same authData we get form the register function
-        AuthData authData = userService.register(userData);
-        res.status(200);
-        //finally we return the authToken
-        return new Gson().toJson(authData);
+        try{
+            AuthData authData = Service.register(userData);
+            res.status(200);
+            //finally we return the authToken
+            return new Gson().toJson(authData);
+        }
+        catch(AlreadyTakenException e){
+            res.status(403);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+        catch(Exception e){
+            res.status(500);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
     }
 
     private Object login(Request req, Response res) {
         //first we parse the user data
         UserData userData = new Gson().fromJson(req.body(), UserData.class);
 
-        //then we set the authData to the same authData we get form the register function
-        AuthData authData = userService.login(userData);
-        //finally we return the authToken
-        return new Gson().toJson(authData);
+        try{
+            //then we set the authData to the same authData we get form the register function
+            AuthData authData = Service.login(userData);
+            //finally we return the authToken
+            res.status(200);
+            return new Gson().toJson(authData);
+        }
+        catch(UnauthorizedException e){
+            res.status(401);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+        catch(Exception e){
+            res.status(500);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
     }
 
     private Object logout(Request req, Response res) {
         //first we get the authToken
-        String authToken = req.headers(":authorization");
+        String authToken = req.headers("Authorization");
 
-        //here we log out
-        userService.logout(authToken);
+        try{
+            Service.logout(authToken);
+            return new Gson().toJson(new ErrorMessageResponse("["+ res.status() + "]"));
+        }
+        catch(UnauthorizedException e){
+            res.status(401);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+        catch(Exception e){
+            res.status(500);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
 
-        //then we just return the response
-        return res.status();
+    private Object createGame(Request req, Response res) {
+        //first we get the game name and authToken
+        GameData gameData = new Gson().fromJson(req.body(), GameData.class);
+        String authToken = req.headers("Authorization");
+
+        String gameName = gameData.gameName();
+        //if the game name is null then we blast it with a bad request
+        if(gameName == null){
+            res.status(400);
+            BadRequestException errorMessage = new BadRequestException();
+            return new Gson().toJson(new ErrorMessageResponse(errorMessage.getMessage()));
+        }
+
+        //here we try to set the gameData to what gets passed back from our service
+        try{
+            GameData newGameData = Service.createGame(authToken, gameName);
+            res.status(200);
+            //finally we return the authToken
+            JsonObject jsonResponse = new JsonObject();
+            jsonResponse.addProperty("gameID", newGameData.gameID());
+            // Convert the JSON object to JSON format
+            return new Gson().toJson(jsonResponse);
+        }
+        catch(UnauthorizedException e){
+            res.status(401);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+        catch(Exception e){
+            res.status(500);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
+    private Object listGames(Request req, Response res) {
+        //first we get the game name and authToken
+        String authToken = req.headers("Authorization");
+
+        //here we try to set the gameData to what gets passed back from our service
+        try{
+            Collection<GameData> games = Service.listGames(authToken);
+            res.status(200);
+            JsonArray gamesArray = new JsonArray();
+            for (GameData game : games) {
+                JsonObject gameJson = new JsonObject();
+                gameJson.addProperty("gameID", game.gameID());
+                // Add other properties as needed (if available in GameData)
+                gamesArray.add(gameJson);
+            }
+            // Create a JSON object to hold the array of games
+            JsonObject jsonResponse = new JsonObject();
+            jsonResponse.add("games", gamesArray);
+            return new Gson().toJson(jsonResponse);
+        }
+        catch(UnauthorizedException e){
+            res.status(401);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+        catch(Exception e){
+            res.status(500);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
     }
 
 
