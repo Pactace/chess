@@ -6,6 +6,7 @@ import dataAccess.UserDAO;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import requests.JoinGameRequestData;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -70,6 +71,32 @@ public class Service {
 
         //here we create the Data in the game DAO and return the gameID
         return gameDAO.createGame(gameName);
+    }
+
+    public void joinGame(String authToken, JoinGameRequestData joinGameRequestData) throws Exception {
+        //if the authToken is crap throw an error
+        if (authDAO.getAuthData(authToken) == null) {
+            throw new UnauthorizedException();
+        }
+
+        if(gameDAO.getGame(joinGameRequestData.gameID()) != null) {
+            //if the color is alreadyTaken throw an Already Taken error
+            if ((joinGameRequestData.playerColor().equals("WHITE") && gameDAO.getGame(joinGameRequestData.gameID()).whiteUsername() != null) ||
+                    (joinGameRequestData.playerColor().equals("BLACK") && gameDAO.getGame(joinGameRequestData.gameID()).blackUsername() != null)) {
+                throw new AlreadyTakenException();
+            }
+        }
+        else{
+            throw new BadRequestException();
+        }
+
+        if(joinGameRequestData.playerColor().equals("BLACK") || joinGameRequestData.playerColor().equals("WHITE")){
+            //if all those tests have passed then hit em with the username
+            System.out.println(joinGameRequestData.playerColor() + " " + joinGameRequestData.gameID() + " " + authDAO.getAuthData(authToken).username());
+            gameDAO.joinGame(joinGameRequestData.playerColor(), joinGameRequestData.gameID(), authDAO.getAuthData(authToken).username());
+        }
+
+
     }
 
     public Collection<GameData> listGames (String authToken) throws UnauthorizedException {

@@ -22,9 +22,32 @@ public class GameDAO {
         GameData gameData = new GameData(gameID,null,null, gameName, new ChessGame());
         games.put(gameData.gameID(), gameData);
 
+        System.out.println(games.values());
         //increment the gameID and push the return the gameDATA
         gameID++;
         return gameData;
+    }
+
+    public void joinGame(String playerColor, int id, String username)
+    {
+        //make a new gameData taking everything from the previous gameData and modifying the playerColor of the parameter
+        GameData oldGame = getGame(id);
+
+        GameData updatedGame = null;
+
+        if(playerColor.equals("WHITE")) {
+            updatedGame = new GameData(oldGame.gameID(), username, oldGame.blackUsername(), oldGame.gameName(), oldGame.game());
+        }
+        if(playerColor.equals("BLACK")) {
+            updatedGame = new GameData(oldGame.gameID(), oldGame.whiteUsername(), username, oldGame.gameName(), oldGame.game());
+        }
+
+        //here we update the game
+        updateGame(updatedGame);
+    }
+
+    public void updateGame(GameData gameData){
+        games.replace(gameData.gameID(), gameData);
     }
 
     public Collection<GameData> listGames() {
@@ -32,6 +55,7 @@ public class GameDAO {
     }
 
     public void clear(){
+        gameID = 0;
         games.clear();
     }
 }

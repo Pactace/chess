@@ -2,7 +2,6 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dataAccess.AuthDAO;
 import dataAccess.GameDAO;
@@ -10,6 +9,7 @@ import dataAccess.UserDAO;
 import model.GameData;
 import model.UserData;
 import model.AuthData;
+import requests.JoinGameRequestData;
 import service.AlreadyTakenException;
 import service.BadRequestException;
 import service.UnauthorizedException;
@@ -43,6 +43,8 @@ public class Server {
         Spark.post("/session", this::login);
         Spark.delete("/session", this::logout);
         Spark.post("/game", this::createGame);
+        Spark.get("/game", this::listGames);
+        Spark.put("/game", this::joinGame);
 
 
 
@@ -170,6 +172,7 @@ public class Server {
         //first we get the game name and authToken
         String authToken = req.headers("Authorization");
 
+
         //here we try to set the gameData to what gets passed back from our service
         try{
             Collection<GameData> games = Service.listGames(authToken);
@@ -178,16 +181,39 @@ public class Server {
             for (GameData game : games) {
                 JsonObject gameJson = new JsonObject();
                 gameJson.addProperty("gameID", game.gameID());
-                // Add other properties as needed (if available in GameData)
                 gamesArray.add(gameJson);
             }
-            // Create a JSON object to hold the array of games
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.add("games", gamesArray);
             return new Gson().toJson(jsonResponse);
         }
         catch(UnauthorizedException e){
             res.status(401);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+        catch(Exception e){
+            res.status(500);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+    }
+
+    private Object joinGame(Request req, Response res) {
+        //first we get the game name and authToken
+        String authToken = req.headers("Authorization");
+        JoinGameRequestData joinGameRequestData = new Gson().fromJson(req.body(), JoinGameRequestData.class);
+
+        //here we try to set the gameData to what gets passed back from our service
+        try{
+            Service.joinGame(authToken, joinGameRequestData);
+            res.status(200);
+            return "{}";
+        }
+        catch(UnauthorizedException e){
+            res.status(401);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
+        }
+        catch(AlreadyTakenException e){
+            res.status(403);
             return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
         }
         catch(Exception e){

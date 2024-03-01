@@ -14,7 +14,6 @@ public class ChessGame {
     private TeamColor teamTurn;
 
     public ChessGame() {
-        //here I just want to initiate the
     }
 
     /**
