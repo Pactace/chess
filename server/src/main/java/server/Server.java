@@ -19,13 +19,13 @@ import spark.*;
 import java.util.Collection;
 
 public class Server {
-    private final Service Service;
+    private final Service service;
     UserDAO userDAO = new UserDAO();
     AuthDAO authDAO = new AuthDAO();
     GameDAO gameDAO = new GameDAO();
 
     public Server(){
-        Service = new Service(userDAO, authDAO, gameDAO);
+        service = new Service(userDAO, authDAO, gameDAO);
     }
 
     public static void main(String[] args) {
@@ -59,7 +59,7 @@ public class Server {
 
     private Object clear(Request req, Response res) {
         try{
-            Service.clear();
+            service.clear();
             return new Gson().toJson(new ErrorMessageResponse("["+ res.status() + "]"));
         }
         catch(Exception e){
@@ -81,7 +81,7 @@ public class Server {
 
         //then we set the authData to the same authData we get form the register function
         try{
-            AuthData authData = Service.register(userData);
+            AuthData authData = service.register(userData);
             res.status(200);
             //finally we return the authToken
             return new Gson().toJson(authData);
@@ -102,7 +102,7 @@ public class Server {
 
         try{
             //then we set the authData to the same authData we get form the register function
-            AuthData authData = Service.login(userData);
+            AuthData authData = service.login(userData);
             //finally we return the authToken
             res.status(200);
             return new Gson().toJson(authData);
@@ -122,7 +122,7 @@ public class Server {
         String authToken = req.headers("Authorization");
 
         try{
-            Service.logout(authToken);
+            service.logout(authToken);
             return new Gson().toJson(new ErrorMessageResponse("["+ res.status() + "]"));
         }
         catch(UnauthorizedException e){
@@ -150,7 +150,7 @@ public class Server {
 
         //here we try to set the gameData to what gets passed back from our service
         try{
-            GameData newGameData = Service.createGame(authToken, gameName);
+            GameData newGameData = service.createGame(authToken, gameName);
             res.status(200);
             //finally we return the authToken
             JsonObject jsonResponse = new JsonObject();
@@ -175,7 +175,7 @@ public class Server {
 
         //here we try to set the gameData to what gets passed back from our service
         try{
-            Collection<GameData> games = Service.listGames(authToken);
+            Collection<GameData> games = service.listGames(authToken);
             res.status(200);
             JsonArray gamesArray = new JsonArray();
             for (GameData game : games) {
@@ -207,7 +207,7 @@ public class Server {
 
         //here we try to set the gameData to what gets passed back from our service
         try{
-            Service.joinGame(authToken, joinGameRequestData);
+            service.joinGame(authToken, joinGameRequestData);
             res.status(200);
             return "{}";
         }
