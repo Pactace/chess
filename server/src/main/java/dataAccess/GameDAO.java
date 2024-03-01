@@ -11,7 +11,7 @@ import java.util.List;
 public class GameDAO {
     //first we create a hashmap that will store the user data
     final private HashMap<Integer, GameData> games = new HashMap<>();
-    private int gameID = 0;
+    private int gameID = 1;
 
     public GameData getGame(int id){
         return games.get(id);
@@ -42,6 +42,8 @@ public class GameDAO {
             updatedGame = new GameData(oldGame.gameID(), oldGame.whiteUsername(), username, oldGame.gameName(), oldGame.game());
         }
 
+        System.out.println(updatedGame.gameID() + " "+ updatedGame.whiteUsername() + " " + updatedGame.blackUsername() + " "+ updatedGame.gameName() + " "+ updatedGame.game());
+
         //here we update the game
         updateGame(updatedGame);
     }
@@ -55,7 +57,7 @@ public class GameDAO {
     }
 
     public void clear(){
-        gameID = 0;
+        gameID = 1;
         games.clear();
     }
 }

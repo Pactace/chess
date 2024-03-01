@@ -181,6 +181,9 @@ public class Server {
             for (GameData game : games) {
                 JsonObject gameJson = new JsonObject();
                 gameJson.addProperty("gameID", game.gameID());
+                gameJson.addProperty("whiteUsername", game.whiteUsername());
+                gameJson.addProperty("blackUsername", game.blackUsername());
+                gameJson.addProperty("gameName", game.gameName());
                 gamesArray.add(gameJson);
             }
             JsonObject jsonResponse = new JsonObject();
@@ -207,6 +210,10 @@ public class Server {
             Service.joinGame(authToken, joinGameRequestData);
             res.status(200);
             return "{}";
+        }
+        catch(BadRequestException e){
+            res.status(400);
+            return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
         }
         catch(UnauthorizedException e){
             res.status(401);

@@ -79,24 +79,23 @@ public class Service {
             throw new UnauthorizedException();
         }
 
-        if(gameDAO.getGame(joinGameRequestData.gameID()) != null) {
+        if (gameDAO.getGame(joinGameRequestData.gameID()) == null) {
+            throw new BadRequestException();
+        }
+
+
+        if (joinGameRequestData.playerColor() != null) {
             //if the color is alreadyTaken throw an Already Taken error
+            System.out.println(joinGameRequestData.playerColor());
             if ((joinGameRequestData.playerColor().equals("WHITE") && gameDAO.getGame(joinGameRequestData.gameID()).whiteUsername() != null) ||
                     (joinGameRequestData.playerColor().equals("BLACK") && gameDAO.getGame(joinGameRequestData.gameID()).blackUsername() != null)) {
                 throw new AlreadyTakenException();
             }
+            if(joinGameRequestData.playerColor().equals("BLACK") || joinGameRequestData.playerColor().equals("WHITE")){
+                //if all those tests have passed then hit em with the username
+                gameDAO.joinGame(joinGameRequestData.playerColor(), joinGameRequestData.gameID(), authDAO.getAuthData(authToken).username());
+            }
         }
-        else{
-            throw new BadRequestException();
-        }
-
-        if(joinGameRequestData.playerColor().equals("BLACK") || joinGameRequestData.playerColor().equals("WHITE")){
-            //if all those tests have passed then hit em with the username
-            System.out.println(joinGameRequestData.playerColor() + " " + joinGameRequestData.gameID() + " " + authDAO.getAuthData(authToken).username());
-            gameDAO.joinGame(joinGameRequestData.playerColor(), joinGameRequestData.gameID(), authDAO.getAuthData(authToken).username());
-        }
-
-
     }
 
     public Collection<GameData> listGames (String authToken) throws UnauthorizedException {
