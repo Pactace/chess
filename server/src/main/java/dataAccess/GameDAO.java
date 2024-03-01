@@ -22,7 +22,6 @@ public class GameDAO {
         GameData gameData = new GameData(gameID,null,null, gameName, new ChessGame());
         games.put(gameData.gameID(), gameData);
 
-        System.out.println(games.values());
         //increment the gameID and push the return the gameDATA
         gameID++;
         return gameData;
@@ -41,8 +40,6 @@ public class GameDAO {
         if(playerColor.equals("BLACK")) {
             updatedGame = new GameData(oldGame.gameID(), oldGame.whiteUsername(), username, oldGame.gameName(), oldGame.game());
         }
-
-        System.out.println(updatedGame.gameID() + " "+ updatedGame.whiteUsername() + " " + updatedGame.blackUsername() + " "+ updatedGame.gameName() + " "+ updatedGame.game());
 
         //here we update the game
         updateGame(updatedGame);

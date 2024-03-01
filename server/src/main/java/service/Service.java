@@ -86,7 +86,6 @@ public class Service {
 
         if (joinGameRequestData.playerColor() != null) {
             //if the color is alreadyTaken throw an Already Taken error
-            System.out.println(joinGameRequestData.playerColor());
             if ((joinGameRequestData.playerColor().equals("WHITE") && gameDAO.getGame(joinGameRequestData.gameID()).whiteUsername() != null) ||
                     (joinGameRequestData.playerColor().equals("BLACK") && gameDAO.getGame(joinGameRequestData.gameID()).blackUsername() != null)) {
                 throw new AlreadyTakenException();

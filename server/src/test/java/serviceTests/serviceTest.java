@@ -131,7 +131,16 @@ class serviceTest {
     }
 
     @Test
-    void listGamesCreatesFiveGames() {
+    void listGamesCreatesFiveGames() throws Exception {
+        UserData testUser = new UserData("TestUsername", "TestPassword", "TestEmail");
+        String authToken = Service.register(testUser).authToken();
+        Service.createGame(authToken, "TestGame1");
+        Service.createGame(authToken, "TestGame2");
+        Service.createGame(authToken, "TestGame3");
+        Service.createGame(authToken, "TestGame4");
+        Service.createGame(authToken, "TestGame5");
+
+        Assertions.assertEquals(Service.listGames(authToken).size(), 5);
     }
 
     @Test
