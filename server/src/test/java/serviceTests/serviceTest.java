@@ -1,8 +1,8 @@
 package serviceTests;
 
-import dataAccess.AuthDAO;
-import dataAccess.GameDAO;
-import dataAccess.UserDAO;
+import dataAccess.MemoryAuthDAO;
+import dataAccess.MemoryGameDAO;
+import dataAccess.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
@@ -15,17 +15,17 @@ import requests.JoinGameRequestData;
 
 class serviceTest {
     //add the userDAO and authDAO make sure that they are reset before every test
-    UserDAO userDAO = new UserDAO();
-    AuthDAO authDAO = new AuthDAO();
-    GameDAO gameDAO = new GameDAO();
-    Service Service = new Service(userDAO, authDAO, gameDAO);
+    MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+    MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+    MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+    Service Service = new Service(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
 
     @BeforeEach
     void setup(){
-        userDAO = new UserDAO();
-        authDAO = new AuthDAO();
-        gameDAO = new GameDAO();
-        Service = new Service(userDAO, authDAO, gameDAO);
+        memoryUserDAO = new MemoryUserDAO();
+        memoryAuthDAO = new MemoryAuthDAO();
+        memoryGameDAO = new MemoryGameDAO();
+        Service = new Service(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
     }
     @Test
     void registerUserAddsToUserDAO() throws AlreadyTakenException {
@@ -33,13 +33,13 @@ class serviceTest {
         UserData testUser = new UserData("TestUsername", "TestPassword", "TestEmail");
         Service.register(testUser);
 
-        Assertions.assertEquals(testUser , Service.userDAO.getUser(testUser.username()));
+        Assertions.assertEquals(testUser , Service.memoryUserDAO.getUser(testUser.username()));
     }
     @Test
     void registerThrowsAlreadyTaken() {
         //for this exception we add a user into the database first and make sure that it throws an already taken exception
         UserData testUser = new UserData("TestUsername", "TestPassword", "TestEmail");
-        Service.userDAO.createUser(testUser);
+        Service.memoryUserDAO.createUser(testUser);
 
         Assertions.assertThrows(AlreadyTakenException.class, () ->  Service.register(testUser) );
     }
@@ -52,7 +52,7 @@ class serviceTest {
         AuthData authData = Service.login(testUser);
 
         //making sure that the data exists when you log in
-        Assertions.assertNotEquals(Service.authDAO.getAuthData(authData.authToken()) , null);
+        Assertions.assertNotEquals(Service.memoryAuthDAO.getAuthData(authData.authToken()) , null);
     }
 
     @Test
@@ -74,7 +74,7 @@ class serviceTest {
         Service.logout(authToken);
 
         //making sure that the authtoken no longer exists when its looked up
-        Assertions.assertEquals(Service.authDAO.getAuthData(authToken) , null);
+        Assertions.assertEquals(Service.memoryAuthDAO.getAuthData(authToken) , null);
     }
 
     @Test
@@ -86,7 +86,7 @@ class serviceTest {
         Service.logout(authData.authToken());
 
         //making sure that the authtoken no longer exists when its looked up
-        Assertions.assertEquals(Service.authDAO.getAuthData(authData.authToken()) , null);
+        Assertions.assertEquals(Service.memoryAuthDAO.getAuthData(authData.authToken()) , null);
     }
 
     @Test
@@ -96,7 +96,7 @@ class serviceTest {
         Service.createGame(authToken, "TestGame");
 
         //after we create make sure that the game list isnt null
-        Assertions.assertNotEquals(Service.gameDAO.listGames(), null);
+        Assertions.assertNotEquals(Service.memoryGameDAO.listGames(), null);
     }
 
     @Test
@@ -116,7 +116,7 @@ class serviceTest {
         JoinGameRequestData testJoinGameRequest = new JoinGameRequestData("WHITE",gameID);
         Service.joinGame(authToken, testJoinGameRequest);
 
-        Assertions.assertNotEquals(Service.gameDAO.getGame(gameID).whiteUsername(), null);
+        Assertions.assertNotEquals(Service.memoryGameDAO.getGame(gameID).whiteUsername(), null);
     }
 
     @Test

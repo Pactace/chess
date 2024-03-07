@@ -3,9 +3,9 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import dataAccess.AuthDAO;
-import dataAccess.GameDAO;
-import dataAccess.UserDAO;
+import dataAccess.MemoryAuthDAO;
+import dataAccess.MemoryGameDAO;
+import dataAccess.MemoryUserDAO;
 import model.GameData;
 import model.UserData;
 import model.AuthData;
@@ -20,12 +20,12 @@ import java.util.Collection;
 
 public class Server {
     private final Service service;
-    UserDAO userDAO = new UserDAO();
-    AuthDAO authDAO = new AuthDAO();
-    GameDAO gameDAO = new GameDAO();
+    MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+    MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+    MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
 
     public Server(){
-        service = new Service(userDAO, authDAO, gameDAO);
+        service = new Service(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
     }
 
     public static void main(String[] args) {
