@@ -11,8 +11,14 @@ import static java.sql.Types.NULL;
 
 public class SQLUserDAO implements UserDAO {
 
-    public SQLUserDAO(){
+    public SQLUserDAO() throws DataAccessException {
+        configureDatabase();
     }
+
+    public static void main(String[] args) throws Exception {
+        new SQLUserDAO();
+    }
+
     public UserData getUser(String username){
         return null;
     }
@@ -20,19 +26,25 @@ public class SQLUserDAO implements UserDAO {
     }
     public void clear(){}
 
-    private final String[] createStatements = {
-            """
+    void configureDatabase() throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+
+            var createUserTable = """
             CREATE TABLE IF NOT EXISTS user (
-              `username` varchar(256) NOT NULL,
-              `password` varchar(256) NOT NULL,
-              'email' varchar(256) NOT NULL,
-              `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`username`),
-              INDEX(password),
-              INDEX(email)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
+                username VARCHAR(255) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                PRIMARY KEY (username)
+            )""";
+
+            try (var createTableStatement = conn.prepareStatement(createUserTable)) {
+                createTableStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("unable to get connection");
+        }
+    }
 
 
 }
