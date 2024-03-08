@@ -41,6 +41,9 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     public AuthData createAuth(AuthData authData) throws DataAccessException {
+        if(authData.authToken() == null){
+            throw new DataAccessException("cannot have null authtoken");
+        }
         var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
         //here we are going to update it
         executeUpdate(statement, authData.authToken(), authData.username());

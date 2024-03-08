@@ -1,5 +1,8 @@
 package serviceTests;
 
+import dataAccess.Interfaces.AuthDAO;
+import dataAccess.Interfaces.GameDAO;
+import dataAccess.Interfaces.UserDAO;
 import dataAccess.Memory.MemoryAuthDAO;
 import dataAccess.Memory.MemoryGameDAO;
 import dataAccess.Memory.MemoryUserDAO;
@@ -8,6 +11,7 @@ import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import service.AlreadyTakenException;
 import service.UnauthorizedException;
 import service.Service;
@@ -15,17 +19,17 @@ import requests.JoinGameRequestData;
 
 class serviceTest {
     //add the userDAO and authDAO make sure that they are reset before every test
-    MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-    MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
-    MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
-    Service Service = new Service(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
+    UserDAO userDAO = new MemoryUserDAO();
+    AuthDAO authDAO = new MemoryAuthDAO();
+    GameDAO gameDAO = new MemoryGameDAO();
+    Service Service = new Service(userDAO, authDAO, gameDAO);
 
     @BeforeEach
     void setup(){
-        memoryUserDAO = new MemoryUserDAO();
-        memoryAuthDAO = new MemoryAuthDAO();
-        memoryGameDAO = new MemoryGameDAO();
-        Service = new Service(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
+        userDAO = new MemoryUserDAO();
+        authDAO = new MemoryAuthDAO();
+        gameDAO = new MemoryGameDAO();
+        Service = new Service(userDAO, authDAO, gameDAO);
     }
     @Test
     void registerUserAddsToUserDAO() throws Exception {
@@ -33,7 +37,7 @@ class serviceTest {
         UserData testUser = new UserData("TestUsername", "TestPassword", "TestEmail");
         Service.register(testUser);
 
-        Assertions.assertEquals(testUser , Service.userDAO.getUser(testUser.username()));
+        Assertions.assertEquals(testUser.username() , Service.userDAO.getUser(testUser.username()).username());
     }
     @Test
     void registerThrowsAlreadyTaken() throws Exception {

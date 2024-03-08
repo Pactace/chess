@@ -6,6 +6,7 @@ import dataAccess.DataAccessException;
 import dataAccess.Interfaces.GameDAO;
 import model.GameData;
 
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -40,6 +41,9 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public GameData createGame(String gameName) throws DataAccessException {
+        if(gameName == null){
+            throw new DataAccessException("cannot insert null as game name");
+        }
         var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         ChessGame newChessGame = new ChessGame();
         var json = new Gson().toJson(newChessGame);
@@ -49,6 +53,10 @@ public class SQLGameDAO implements GameDAO {
 
     public void joinGame(String playerColor, int id, String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
+            if(getGame(id) == null){
+                throw new DataAccessException("invalid id");
+            }
+
             if(playerColor.equals("WHITE")) {
                 try (var preparedStatement = conn.prepareStatement("UPDATE game SET whiteUsername=? WHERE gameId=?")) {
                     preparedStatement.setString(1, username);
@@ -69,6 +77,7 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void updateGame(GameData gameData) {
+        //this doesn't have anything in it yet
     }
 
     public Collection<GameData> listGames() throws DataAccessException {
@@ -104,7 +113,7 @@ public class SQLGameDAO implements GameDAO {
         executeUpdate(statement);
     }
 
-    void configureDatabase() throws DataAccessException {
+    private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             var createUserTable = """
