@@ -17,15 +17,6 @@ import static java.sql.Types.NULL;
 public class SQLGameDAO implements GameDAO {
     public SQLGameDAO() throws DataAccessException {
         configureDatabase();
-        createGame("1");
-        joinGame("WHITE", 1, "white user");
-        // createGame("2"); createGame("3"); createGame("4"); createGame("5");
-        getGame(1);
-        joinGame("BLACK", 1, "black user");
-        // createGame("2"); createGame("3"); createGame("4"); createGame("5");
-        getGame(1);
-        //listGames();
-        clear();
     }
 
     public static void main(String[] args) throws Exception {
@@ -105,7 +96,6 @@ public class SQLGameDAO implements GameDAO {
         var gameJson = rs.getString("game");
         var game = new Gson().fromJson(gameJson, ChessGame.class);
         GameData fullGame = new GameData(id, whiteUsername ,blackUsername ,gameName ,game);
-        System.out.println(fullGame);
         return fullGame;
     }
 

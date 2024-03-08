@@ -3,9 +3,16 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import dataAccess.DataAccessException;
+import dataAccess.Interfaces.AuthDAO;
+import dataAccess.Interfaces.GameDAO;
+import dataAccess.Interfaces.UserDAO;
 import dataAccess.Memory.MemoryAuthDAO;
 import dataAccess.Memory.MemoryGameDAO;
 import dataAccess.Memory.MemoryUserDAO;
+import dataAccess.SQL.SQLAuthDAO;
+import dataAccess.SQL.SQLGameDAO;
+import dataAccess.SQL.SQLUserDAO;
 import model.GameData;
 import model.UserData;
 import model.AuthData;
@@ -20,12 +27,22 @@ import java.util.Collection;
 
 public class Server {
     private final Service service;
-    MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-    MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
-    MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+    UserDAO userDAO = null;
+    AuthDAO authDAO = null;
+    GameDAO gameDAO = null;
 
-    public Server(){
-        service = new Service(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
+    {
+        try {
+            userDAO = new SQLUserDAO();
+            authDAO = new SQLAuthDAO();
+            gameDAO = new SQLGameDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Server() {
+        service = new Service(userDAO, authDAO, gameDAO);
     }
 
     public static void main(String[] args) {

@@ -28,18 +28,18 @@ class serviceTest {
         Service = new Service(memoryUserDAO, memoryAuthDAO, memoryGameDAO);
     }
     @Test
-    void registerUserAddsToUserDAO() throws AlreadyTakenException {
+    void registerUserAddsToUserDAO() throws Exception {
         //For this test to work we just register a new user and make sure that it populates correctly
         UserData testUser = new UserData("TestUsername", "TestPassword", "TestEmail");
         Service.register(testUser);
 
-        Assertions.assertEquals(testUser , Service.memoryUserDAO.getUser(testUser.username()));
+        Assertions.assertEquals(testUser , Service.userDAO.getUser(testUser.username()));
     }
     @Test
-    void registerThrowsAlreadyTaken() {
+    void registerThrowsAlreadyTaken() throws Exception {
         //for this exception we add a user into the database first and make sure that it throws an already taken exception
         UserData testUser = new UserData("TestUsername", "TestPassword", "TestEmail");
-        Service.memoryUserDAO.createUser(testUser);
+        Service.userDAO.createUser(testUser);
 
         Assertions.assertThrows(AlreadyTakenException.class, () ->  Service.register(testUser) );
     }
@@ -52,7 +52,7 @@ class serviceTest {
         AuthData authData = Service.login(testUser);
 
         //making sure that the data exists when you log in
-        Assertions.assertNotEquals(Service.memoryAuthDAO.getAuthData(authData.authToken()) , null);
+        Assertions.assertNotEquals(Service.authDAO.getAuthData(authData.authToken()) , null);
     }
 
     @Test
@@ -74,7 +74,7 @@ class serviceTest {
         Service.logout(authToken);
 
         //making sure that the authtoken no longer exists when its looked up
-        Assertions.assertEquals(Service.memoryAuthDAO.getAuthData(authToken) , null);
+        Assertions.assertEquals(Service.authDAO.getAuthData(authToken) , null);
     }
 
     @Test
@@ -86,7 +86,7 @@ class serviceTest {
         Service.logout(authData.authToken());
 
         //making sure that the authtoken no longer exists when its looked up
-        Assertions.assertEquals(Service.memoryAuthDAO.getAuthData(authData.authToken()) , null);
+        Assertions.assertEquals(Service.authDAO.getAuthData(authData.authToken()) , null);
     }
 
     @Test
@@ -96,7 +96,7 @@ class serviceTest {
         Service.createGame(authToken, "TestGame");
 
         //after we create make sure that the game list isnt null
-        Assertions.assertNotEquals(Service.memoryGameDAO.listGames(), null);
+        Assertions.assertNotEquals(Service.gameDAO.listGames(), null);
     }
 
     @Test
@@ -116,7 +116,7 @@ class serviceTest {
         JoinGameRequestData testJoinGameRequest = new JoinGameRequestData("WHITE",gameID);
         Service.joinGame(authToken, testJoinGameRequest);
 
-        Assertions.assertNotEquals(Service.memoryGameDAO.getGame(gameID).whiteUsername(), null);
+        Assertions.assertNotEquals(Service.gameDAO.getGame(gameID).whiteUsername(), null);
     }
 
     @Test

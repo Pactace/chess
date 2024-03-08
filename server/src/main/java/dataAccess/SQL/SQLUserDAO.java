@@ -13,9 +13,6 @@ public class SQLUserDAO implements UserDAO {
 
     public SQLUserDAO() throws DataAccessException {
         configureDatabase();
-        UserData user = new UserData("PracticeUsername1","TotallyDifferentPracticePassword","PracticeEmail@email.com"); createUser(user);
-        getUser("PracticeUsername1");
-        // clear();
     }
 
     public static void main(String[] args) throws Exception {
@@ -32,7 +29,6 @@ public class SQLUserDAO implements UserDAO {
                         var password = rs.getString("password");
                         var email = rs.getString("email");
 
-                        System.out.printf("username: %s, password: %s, email: %s%n", foundUsername, password, email);
                         return new UserData(foundUsername,password,email);
                     }
                 }

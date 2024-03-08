@@ -14,10 +14,6 @@ import static java.sql.Types.NULL;
 public class SQLAuthDAO implements AuthDAO {
     public SQLAuthDAO() throws DataAccessException {
         configureDatabase();
-        //AuthData user = new AuthData(UUID.randomUUID().toString(),"Fart even though its not in the database"); createAuth(user);
-        //getAuthData("21f05de2-9e65-4471-95ca-a83efd1fd7c1");
-        //removeAuth("c3cec397-b9e7-4bda-820a-0119868a41cc");
-        //clear();
     }
 
     public static void main(String[] args) throws Exception {
@@ -32,7 +28,6 @@ public class SQLAuthDAO implements AuthDAO {
                         var foundAuthToken = rs.getString("authToken");
                         var username = rs.getString("username");
 
-                        System.out.printf("authToken: %s, username: %s", foundAuthToken, username);
                         return new AuthData(foundAuthToken, username);
                     }
                 }
