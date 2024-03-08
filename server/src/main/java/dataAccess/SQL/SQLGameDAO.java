@@ -18,12 +18,13 @@ public class SQLGameDAO implements GameDAO {
     public SQLGameDAO() throws DataAccessException {
         configureDatabase();
         createGame("1");
-        createGame("2");
-        createGame("3");
-        createGame("4");
-        createGame("5");
-        listGames();
-        //getGame(1);
+        joinGame("WHITE", 1, "white user");
+        // createGame("2"); createGame("3"); createGame("4"); createGame("5");
+        getGame(1);
+        joinGame("BLACK", 1, "black user");
+        // createGame("2"); createGame("3"); createGame("4"); createGame("5");
+        getGame(1);
+        //listGames();
         clear();
     }
 
@@ -55,8 +56,25 @@ public class SQLGameDAO implements GameDAO {
         return new GameData(id, null,null, gameName, newChessGame);
     }
 
-    public void joinGame(String playerColor, int id, String username) {
+    public void joinGame(String playerColor, int id, String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            if(playerColor.equals("WHITE")) {
+                try (var preparedStatement = conn.prepareStatement("UPDATE game SET whiteUsername=? WHERE gameId=?")) {
+                    preparedStatement.setString(1, username);
+                    preparedStatement.setInt(2, id);
+                    preparedStatement.executeUpdate();}
+            }
+            if(playerColor.equals("BLACK")) {
+                try (var preparedStatement = conn.prepareStatement("UPDATE game SET blackUsername=? WHERE gameId=?")) {
+                    preparedStatement.setString(1, username);
+                    preparedStatement.setInt(2, id);
+                    preparedStatement.executeUpdate();
+                }
+            }
 
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     public void updateGame(GameData gameData) {
