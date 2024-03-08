@@ -1,13 +1,14 @@
-package dataAccess;
+package dataAccess.Memory;
 
 import chess.ChessGame;
+import dataAccess.Interfaces.GameDAO;
 import model.GameData;
 
 import java.util.Collection;
 import java.util.HashMap;
 
 //We need to create a createGame, joinGame, listGames
-public class MemoryGameDAO implements GameDAO{
+public class MemoryGameDAO implements GameDAO {
     //first we create a hashmap that will store the user data
     final private HashMap<Integer, GameData> games = new HashMap<>();
     private int gameID = 1;

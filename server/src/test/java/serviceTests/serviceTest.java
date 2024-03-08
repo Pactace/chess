@@ -1,8 +1,8 @@
 package serviceTests;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.Memory.MemoryAuthDAO;
+import dataAccess.Memory.MemoryGameDAO;
+import dataAccess.Memory.MemoryUserDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;

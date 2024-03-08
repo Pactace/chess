@@ -1,8 +1,8 @@
 package service;
 
-import dataAccess.MemoryAuthDAO;
-import dataAccess.MemoryGameDAO;
-import dataAccess.MemoryUserDAO;
+import dataAccess.Memory.MemoryAuthDAO;
+import dataAccess.Memory.MemoryGameDAO;
+import dataAccess.Memory.MemoryUserDAO;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
