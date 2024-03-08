@@ -1,4 +1,4 @@
-package dataAccess.SQL;
+package dataAccessTests;
 
 import dataAccess.DataAccessException;
 

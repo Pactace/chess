@@ -1,12 +1,10 @@
-package dataAccess.SQL;
+package dataAccessTests;
 
 import dataAccess.DataAccessException;
 import dataAccess.Interfaces.AuthDAO;
 import model.AuthData;
-import model.UserData;
 
 import java.sql.SQLException;
-import java.util.UUID;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;

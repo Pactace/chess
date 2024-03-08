@@ -1,4 +1,4 @@
-package dataAccess.SQL;
+package dataAccessTests;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
@@ -6,7 +6,6 @@ import dataAccess.DataAccessException;
 import dataAccess.Interfaces.GameDAO;
 import model.GameData;
 
-import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

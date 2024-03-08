@@ -92,7 +92,7 @@ public class PersistenceTests {
     private int getDatabaseRows() {
         int rows = 0;
         try {
-            Class<?> clazz = Class.forName("dataAccess.SQL.DatabaseManager");
+            Class<?> clazz = Class.forName("dataAccessTests.DatabaseManager");
             Method getConnectionMethod = clazz.getDeclaredMethod("getConnection");
             getConnectionMethod.setAccessible(true);
 

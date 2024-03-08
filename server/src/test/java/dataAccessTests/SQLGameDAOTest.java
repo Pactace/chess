@@ -1,13 +1,9 @@
-package dataAccess.SQL;
+package dataAccessTests;
 
 import dataAccess.DataAccessException;
 import model.GameData;
 import org.junit.jupiter.api.*;
-import service.AlreadyTakenException;
 
-import javax.xml.crypto.Data;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SQLGameDAOTest {
