@@ -1,66 +1,70 @@
-package dataAccessTests;
+package dataAccess;
 
-import dataAccess.DataAccessException;
-import dataAccess.Interfaces.UserDAO;
-import model.UserData;
+import dataAccess.Interfaces.AuthDAO;
+import model.AuthData;
 
 import java.sql.SQLException;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
-public class SQLUserDAO implements UserDAO {
-
-    public SQLUserDAO() throws DataAccessException {
+public class SQLAuthDAO implements AuthDAO {
+    public SQLAuthDAO() throws DataAccessException {
         configureDatabase();
     }
 
     public static void main(String[] args) throws Exception {
-        new SQLUserDAO();
+        new SQLAuthDAO();
     }
-
-    public UserData getUser(String username) throws DataAccessException {
+    public AuthData getAuthData(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("SELECT username, password, email FROM user WHERE username=?")) {
-                preparedStatement.setString(1, username);
+            try (var preparedStatement = conn.prepareStatement("SELECT authToken, username FROM auth WHERE authToken=?")) {
+                preparedStatement.setString(1, authToken);
                 try (var rs = preparedStatement.executeQuery()) {
                     while (rs.next()) {
-                        var foundUsername = rs.getString("username");
-                        var password = rs.getString("password");
-                        var email = rs.getString("email");
+                        var foundAuthToken = rs.getString("authToken");
+                        var username = rs.getString("username");
 
-                        return new UserData(foundUsername,password,email);
+                        return new AuthData(foundAuthToken, username);
                     }
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new DataAccessException(String.format("unable to query database: %s, %s", e.getMessage()));
             }
             return null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(String.format("unable get connection: %s, %s", e.getMessage()));
         }
     }
 
-    public void createUser(UserData user) throws DataAccessException {
-        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+    public AuthData createAuth(AuthData authData) throws DataAccessException {
+        if(authData.authToken() == null){
+            throw new DataAccessException("cannot have null authtoken");
+        }
+        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
         //here we are going to update it
-        executeUpdate(statement, user.username(), user.password(), user.email());
+        executeUpdate(statement, authData.authToken(), authData.username());
+        return authData;
     }
+
+    public void removeAuth(String authToken) throws DataAccessException {
+        var statement = "DELETE FROM auth WHERE authToken=?";
+        executeUpdate(statement, authToken);
+    }
+
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE user";
+        var statement = "TRUNCATE auth";
         executeUpdate(statement);
     }
 
     void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-
             var createUserTable = """
-            CREATE TABLE IF NOT EXISTS user (
-                username VARCHAR(255) NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL,
-                PRIMARY KEY (username)
+            CREATE TABLE  IF NOT EXISTS auth (
+            authToken VARCHAR(255),
+            username VARCHAR(255),
+            PRIMARY KEY (authToken)
             )""";
 
             try (var createTableStatement = conn.prepareStatement(createUserTable)) {
@@ -84,6 +88,4 @@ public class SQLUserDAO implements UserDAO {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
-
-
 }

@@ -1,8 +1,7 @@
-package dataAccessTests;
+package dataAccess;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
 import dataAccess.Interfaces.GameDAO;
 import model.GameData;
 
