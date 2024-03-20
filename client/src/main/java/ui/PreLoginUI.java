@@ -49,15 +49,55 @@ public class PreLoginUI {
             System.out.print("\u001b[49;m");
         }
         else if(command.equalsIgnoreCase("login")){
-            while(true){
-                //Here we are going to enter the username and password separated by spaces.
+            //Here we are going to enter the username and password separated by spaces.
+            System.out.print("\u001b[104;1m");
+            System.out.print("\u001b[30;1m");
+            System.out.println("To login to a old account enter your data like this (without single quotes, spaces between each field):");
+            System.out.print("\u001b[107;1m");
+            System.out.print("\u001b[35;1m");
+            System.out.println("'Username' 'Password'");
 
+            System.out.print("\u001b[49;m");
+            System.out.print("\u001b[33;1m");
+            System.out.printf("[ENTER YOUR LOGIN INFO]>>>");
+
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine();
+            var loginData = line.split(" ");
+
+            //if the login data is good move over to the next issue.
+            if(loginData.length == 2){
+
+            }
+            else {
+                System.out.print("\u001b[31;1m");
+                System.out.println("Theres a problem with your login you goon");
             }
         }
         else if(command.equalsIgnoreCase("register")){
-            while(true){
-                //here we are going to ask for a username password and email seperated by spaces
+            //Here we are going to enter the username and password separated by spaces.
+            System.out.print("\u001b[104;1m");
+            System.out.print("\u001b[30;1m");
+            System.out.println("To create a new account enter your data like this (without single quotes, spaces between each field):");
+            System.out.print("\u001b[107;1m");
+            System.out.print("\u001b[35;1m");
+            System.out.println("'Username' 'Password' 'Email'");
 
+            System.out.print("\u001b[49;m");
+            System.out.print("\u001b[33;1m");
+            System.out.printf("[ENTER YOUR NEW INFO]>>>");
+
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine();
+            var loginData = line.split(" ");
+
+            //if the login data is good move over to the next issue.
+            if(loginData.length == 3){
+
+            }
+            else {
+                System.out.print("\u001b[31;1m");
+                System.out.println("Theres a problem with your register you goon");
             }
         }
         //just in case the user inputs a bad function
