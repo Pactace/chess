@@ -40,6 +40,9 @@ public class GameplayUI {
         setBlack(out);
 
         String[] headers = { "a","b","c","d","e","f","g","h"};
+
+        //before we start we are going to print a blank space
+        drawHeader(out, EMPTY);
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
 
