@@ -130,6 +130,11 @@ public class PostLoginUI {
             String line = scanner.nextLine();
         }
         else if(command.equalsIgnoreCase("logout")){
+            try {
+                serverFacade.logout();
+            }catch (Exception e){
+                System.out.print("I literally don't know how you got this far without an authToken");
+            }
             return -1;
         }
         //just in case the user inputs a bad function

@@ -88,7 +88,14 @@ public class PreLoginUI {
 
             //if the login data is good move over to the next issue.
             if(loginData.length == 2){
-                return true;
+                UserData newUser = new UserData(loginData[0], loginData[1], null);
+                try{
+                    serverFacade.login(newUser);
+                    return true;
+                }
+                catch(Exception e){
+                    System.out.println("Theres a problem with your login you goon either you dont exist or you dont remember your password");
+                }
             }
             else {
                 System.out.print("\u001b[31;1m");
