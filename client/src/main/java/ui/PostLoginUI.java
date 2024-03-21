@@ -10,7 +10,7 @@ public class PostLoginUI {
         commandPrompt();
     }
 
-    public static void commandPrompt(){
+    private static void commandPrompt(){
         //this starts a loop that will continually check for inputs
         while (true) {
             System.out.print("\u001b[49;m");
@@ -22,7 +22,7 @@ public class PostLoginUI {
             if(command.equalsIgnoreCase("logout")){
                 break;
             }
-            commandCheck(command, "main");
+            commandCheck(command);
         }
     }
 
@@ -31,7 +31,7 @@ public class PostLoginUI {
      * what function it comes from
      * We will then navigate to that page
      */
-    public static void commandCheck(String command, String function){
+    private static void commandCheck(String command){
         if(command.equalsIgnoreCase("help")){
             //here we print the header
             System.out.print("\u001b[104;1m");
