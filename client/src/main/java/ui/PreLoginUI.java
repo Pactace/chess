@@ -1,15 +1,25 @@
 package ui;
 
+import ServerFacade.ServerFacade;
+import model.UserData;
+
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class PreLoginUI {
-    public static void main(String[] args) {
+    private final NavigatorUI navigator;
+    private final ServerFacade serverFacade;
+    PreLoginUI(NavigatorUI navigator, ServerFacade serverFacade){
+        this.navigator = navigator;
+        this.serverFacade = serverFacade;
+    }
+    public void main(String[] args) {
         System.out.print("\u001b[36;1m");
         System.out.println("♕ Welcome to the 240 Chess Client: Type 'help' to get started");
-        commandPrompt();
+        commandPrompt(args);
     }
 
-    private static void commandPrompt(){
+    private void commandPrompt(String[] args){
         //this starts a loop that will continually check for inputs
         while (true) {
             System.out.print("\u001b[32;1m");
@@ -23,8 +33,15 @@ public class PreLoginUI {
                 break;
             }
 
-            commandCheck(command);
+            //look to see for a successful login or register if so break and then call login
+            //consolidate command prompt.
+            //check the command check of the current UI in the navigator class, then you don't have to break the loop
+            boolean success = commandCheck(command);
+            if(success){
+                break;
+            }
         }
+        navigator.transferToPostLoginUI(args);
     }
 
     /**
@@ -32,7 +49,7 @@ public class PreLoginUI {
      * what function it comes from
      * We will then navigate to that page
      */
-    private static void commandCheck(String command){
+    private boolean commandCheck(String command){
         if(command.equalsIgnoreCase("help")){
             //here we print the header
             System.out.print("\u001b[104;1m");
@@ -71,7 +88,7 @@ public class PreLoginUI {
 
             //if the login data is good move over to the next issue.
             if(loginData.length == 2){
-
+                return true;
             }
             else {
                 System.out.print("\u001b[31;1m");
@@ -97,11 +114,18 @@ public class PreLoginUI {
 
             //if the login data is good move over to the next issue.
             if(loginData.length == 3){
-
+                UserData newUser = new UserData(loginData[0], loginData[1], loginData[2]);
+                try{
+                    serverFacade.register(newUser);
+                    return true;
+                }
+                catch(Exception e){
+                    System.out.println("Theres a problem with your register you goon pick a unique username");
+                }
             }
             else {
                 System.out.print("\u001b[31;1m");
-                System.out.println("Theres a problem with your register you goon");
+                System.out.println("Theres a problem with your register you goon enter the right amount of fields(3)");
             }
         }
         //just in case the user inputs a bad function
@@ -110,5 +134,6 @@ public class PreLoginUI {
             System.out.println("Theres a problem with your command, please make sure there are no extra letters or spaces");
             System.out.println("Type 'help' if you need to see the commands again, you goon");
         }
+        return false;
     }
 }

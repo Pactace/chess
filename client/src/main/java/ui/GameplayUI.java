@@ -1,4 +1,5 @@
 package ui;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
@@ -8,15 +9,12 @@ import static ui.EscapeSequences.*;
 public class GameplayUI {
 
     private static final int BOARD_SIZE_IN_SQUARES = 8;
-    private static final int SQUARE_SIZE_IN_CHARS = 2;
-    private static final int LINE_WIDTH_IN_CHARS = 0;
+    private static final int SQUARE_SIZE_IN_CHARS = 3;
+    private static final int LINE_WIDTH_IN_CHARS = 1;
     private static final String EMPTY = "   ";
-    private static final String KING = "K";
-    private static final String QUEEN = "Q";
-    private static final String BISHOP = "B";
-    private static final String KNIGHT = "N";
-    private static final String ROOK = "R";
-    private static final String PAWN = "P";
+    private static final String X = " X ";
+    private static final String O = " O ";
+    private static boolean tileColor = false;
     private static Random rand = new Random();
 
 
@@ -25,10 +23,10 @@ public class GameplayUI {
 
         out.print(ERASE_SCREEN);
 
-        //drawing the top part first
         drawHeaders(out);
 
-        //drawing the bottom part
+        drawChessBoard(out);
+
         drawHeaders(out);
 
         out.print(SET_BG_COLOR_BLACK);
@@ -39,10 +37,7 @@ public class GameplayUI {
 
         setBlack(out);
 
-        String[] headers = { "a","b","c","d","e","f","g","h"};
-
-        //before we start we are going to print a blank space
-        drawHeader(out, EMPTY);
+        String[] headers = { "a","b","c","d","e","f","g","h" };
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
 
@@ -56,11 +51,11 @@ public class GameplayUI {
 
     private static void drawHeader(PrintStream out, String headerText) {
         int prefixLength = SQUARE_SIZE_IN_CHARS / 2;
-        int suffixLength = SQUARE_SIZE_IN_CHARS / 2;
+        // int suffixLength = SQUARE_SIZE_IN_CHARS / 2;
 
         out.print(EMPTY.repeat(prefixLength));
         printHeaderText(out, headerText);
-        out.print(EMPTY.repeat(suffixLength));
+        //out.print(EMPTY.repeat(suffixLength));
     }
 
     private static void printHeaderText(PrintStream out, String player) {
@@ -72,18 +67,42 @@ public class GameplayUI {
         setBlack(out);
     }
 
+    private static void drawChessBoard(PrintStream out) {
+
+        for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
+
+            drawRowOfSquares(out);
+        }
+    }
+
+    private static void drawRowOfSquares(PrintStream out) {
+
+        for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_CHARS; ++squareRow) {
+            for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+                colorSwitch(out);
+
+                if (squareRow == SQUARE_SIZE_IN_CHARS / 2) {
+                    int prefixLength = SQUARE_SIZE_IN_CHARS / 2;
+                    int suffixLength = SQUARE_SIZE_IN_CHARS - prefixLength - 1;
+
+                    out.print(EMPTY.repeat(prefixLength));
+                    printPlayer(out, rand.nextBoolean() ? X : O);
+                    out.print(EMPTY.repeat(suffixLength));
+                }
+                else {
+                    out.print(EMPTY.repeat(SQUARE_SIZE_IN_CHARS));
+                }
+
+                setBlack(out);
+            }
+
+            out.println();
+        }
+    }
+
     private static void setWhite(PrintStream out) {
         out.print(SET_BG_COLOR_WHITE);
         out.print(SET_TEXT_COLOR_WHITE);
-    }
-
-    private static void setBlack(PrintStream out) {
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_BLACK);
-    }
-    private static void setRed(PrintStream out) {
-        out.print(SET_BG_COLOR_RED);
-        out.print(SET_TEXT_COLOR_RED);
     }
 
     private static void setBlue(PrintStream out) {
@@ -91,12 +110,28 @@ public class GameplayUI {
         out.print(SET_TEXT_COLOR_BLUE);
     }
 
+    private static void setBlack(PrintStream out) {
+        out.print(SET_BG_COLOR_BLACK);
+        out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void colorSwitch(PrintStream out){
+        if(!tileColor){
+            setWhite(out);
+            tileColor = true;
+        }
+        else{
+            setBlue(out);
+            tileColor = false;
+        }
+
+    }
+
     private static void printPlayer(PrintStream out, String player) {
         out.print(SET_BG_COLOR_WHITE);
         out.print(SET_TEXT_COLOR_BLACK);
 
         out.print(player);
-
 
         setWhite(out);
     }

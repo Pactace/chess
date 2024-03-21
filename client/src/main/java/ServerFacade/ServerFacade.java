@@ -19,14 +19,18 @@ public class ServerFacade {
 
     //pre-login
 
-    public void register(UserData user) throws Exception {
+    public AuthData register(UserData user) throws Exception {
         var path = "/user";
-        this.makeRequest("POST", path, user, UserData.class);
+        AuthData authData = this.makeRequest("POST", path, user, AuthData.class);
+        authToken = authData.authToken();
+        return authData;
     }
 
-    public void login(UserData user) throws Exception {
+    public AuthData login(UserData user) throws Exception {
         var path = "/session";
-        this.makeRequest("POST", path, user, GameData.class);
+        AuthData authData = this.makeRequest("POST", path, user, AuthData.class);
+        authToken = authData.authToken();
+        return authData;
     }
 
     //post-login
@@ -38,19 +42,23 @@ public class ServerFacade {
         return response.games();
     }
 
-    public void createGame(GameData game) throws Exception {
+    public int createGame(GameData game) throws Exception {
         var path = "/game";
-        this.makeRequest("POST", path, game, GameData.class);
+        return this.makeRequest("POST", path, game.gameName(), int.class);
     }
 
-    public void joinOrObserveGame(GameData game) throws Exception {
+    public void joinOrObserveGame(String playerColor, int gameID) throws Exception {
         var path = "/game";
-        this.makeRequest("PUT", path, game, GameData.class);
+        record JoinGameData(String playerColor, int gameID) {
+        }
+        JoinGameData joinGameData = new JoinGameData(playerColor, gameID);
+
+        this.makeRequest("PUT", path, joinGameData, null);
     }
 
-    public void logout(GameData game) throws Exception {
+    public void logout() throws Exception {
         var path = "/session";
-        this.makeRequest("DELETE", path, game, GameData.class);
+        this.makeRequest("DELETE", path, null, null);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws Exception {
@@ -73,7 +81,7 @@ public class ServerFacade {
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
-            http.addRequestProperty("Authorization", authToken);
+            http.setRequestProperty("Authorization", authToken);
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
             try (OutputStream reqBody = http.getOutputStream()) {

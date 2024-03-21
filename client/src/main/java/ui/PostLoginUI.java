@@ -1,16 +1,26 @@
 package ui;
 
-import java.util.Scanner;
+import ServerFacade.ServerFacade;
 
+import java.util.Scanner;
 //they should all be able to implement a common abstract class. They need to able to ask a question.
 public class PostLoginUI {
-    public static void main(String[] args) {
+
+    private final NavigatorUI navigator;
+    private final ServerFacade serverFacade;
+    private int path = 0;
+
+    PostLoginUI(NavigatorUI navigator, ServerFacade serverFacade){
+        this.navigator = navigator;
+        this.serverFacade = serverFacade;
+    }
+    public void main(String[] args) {
         System.out.print("\u001b[36;1m");
         System.out.println("♕ Hey your in! Welcome to the VIP suite make yourself at home B): Type 'help' to get started");
-        commandPrompt();
+        commandPrompt(args);
     }
 
-    private static void commandPrompt(){
+    private void commandPrompt(String[] args){
         //this starts a loop that will continually check for inputs
         while (true) {
             System.out.print("\u001b[49;m");
@@ -19,10 +29,16 @@ public class PostLoginUI {
             Scanner scanner = new Scanner(System.in);
             String command = scanner.nextLine();
 
-            if(command.equalsIgnoreCase("logout")){
+            path = commandCheck(command);
+            if(path != 0){
                 break;
             }
-            commandCheck(command);
+        }
+        if(path == -1){
+            navigator.transferToPreLoginUI(args);
+        }
+        else if(path == 1){
+            navigator.transferToGamePlayUI(args);
         }
     }
 
@@ -31,7 +47,7 @@ public class PostLoginUI {
      * what function it comes from
      * We will then navigate to that page
      */
-    private static void commandCheck(String command){
+    private int commandCheck(String command){
         if(command.equalsIgnoreCase("help")){
             //here we print the header
             System.out.print("\u001b[104;1m");
@@ -90,7 +106,7 @@ public class PostLoginUI {
 
             //if the login data is good move over to the next issue.
             if(loginData.length == 2){
-
+                return 1;
             }
             else {
                 System.out.print("\u001b[31;1m");
@@ -113,11 +129,15 @@ public class PostLoginUI {
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
         }
+        else if(command.equalsIgnoreCase("logout")){
+            return -1;
+        }
         //just in case the user inputs a bad function
         else{
             System.out.print("\u001b[31;1m");
             System.out.println("Theres a problem with your command, please make sure there are no extra letters or spaces");
             System.out.println("Type 'help' if you need to see the commands again, you goon");
         }
+        return 0;
     }
 }
