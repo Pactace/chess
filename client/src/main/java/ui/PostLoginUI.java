@@ -1,6 +1,7 @@
 package ui;
 
 import ServerFacade.ServerFacade;
+import model.GameData;
 
 import java.util.Scanner;
 //they should all be able to implement a common abstract class. They need to able to ask a question.
@@ -67,15 +68,25 @@ public class PostLoginUI {
         }
         else if(command.equalsIgnoreCase("list")){
             //Here we are going to enter the username and password separated by spaces.
-            System.out.print("\u001b[45;1m");
-            System.out.print("\u001b[30;1m");
-            System.out.println("List of Games:");
+            try {
+                System.out.print("\u001b[45;1m");
+                System.out.print("\u001b[30;1m");
+                System.out.println("List of Games:");
+                GameData[] games = serverFacade.listGames();
+                for(GameData game: games){
+                    System.out.println("Game ID: "+ game.gameID() + " Game Name: " + game.gameName() +
+                            " White Player: " + game.whiteUsername() + " Black Player: " + game.blackUsername());
+                }
+            }
+            catch(Exception e){
+                System.out.print(e.getMessage());
+            }
         }
         else if(command.equalsIgnoreCase("create")){
             //Here we are going to enter the username and password separated by spaces.
             System.out.print("\u001b[104;1m");
             System.out.print("\u001b[30;1m");
-            System.out.println("To create a new game enter your data like this (without single quotes):");
+            System.out.println("To create a new game enter your data like this (without single quotes all one word):");
             System.out.print("\u001b[107;1m");
             System.out.print("\u001b[35;1m");
             System.out.println("'Game Name'");
@@ -86,6 +97,19 @@ public class PostLoginUI {
 
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
+            var gameParams = line.split(" ");
+            if(gameParams.length != 1){
+                System.out.println("what part about only 1 word do you not understand?");
+            }
+            else{
+                try{
+                    serverFacade.createGame(line);
+                }
+                catch(Exception e){
+                    System.out.println("Sorry we cant make that for you right now for some reason, probably your own goonish behavior");
+                }
+            }
+
         }
         else if(command.equalsIgnoreCase("join")){
             //Here we are going to enter the username and password separated by spaces.
@@ -106,7 +130,14 @@ public class PostLoginUI {
 
             //if the login data is good move over to the next issue.
             if(loginData.length == 2){
-                return 1;
+                try{
+                    serverFacade.joinOrObserveGame(Integer.parseInt(loginData[0]), loginData[1]);
+                    return 1;
+                }
+                catch(Exception e){
+                    System.out.println("Join didnt work");
+                }
+
             }
             else {
                 System.out.print("\u001b[31;1m");
@@ -128,6 +159,13 @@ public class PostLoginUI {
 
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
+            try{
+                serverFacade.joinOrObserveGame(Integer.parseInt(line), null);
+                return 1;
+            }
+            catch(Exception e){
+                System.out.println("Join didnt work");
+            }
         }
         else if(command.equalsIgnoreCase("logout")){
             try {

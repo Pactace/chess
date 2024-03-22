@@ -135,6 +135,15 @@ public class PreLoginUI {
                 System.out.println("Theres a problem with your register you goon enter the right amount of fields(3)");
             }
         }
+        else if(command.equalsIgnoreCase("clear for real tho")){
+            try{
+                serverFacade.clear();
+            }
+            catch(Exception e){
+                System.out.println("clear failed");
+            }
+
+        }
         //just in case the user inputs a bad function
         else{
             System.out.print("\u001b[31;1m");

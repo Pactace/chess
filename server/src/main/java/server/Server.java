@@ -170,6 +170,7 @@ public class Server {
             JsonObject jsonResponse = new JsonObject();
             jsonResponse.addProperty("gameID", newGameData.gameID());
             // Convert the JSON object to JSON format
+            System.out.println(jsonResponse);
             return new Gson().toJson(jsonResponse);
         }
         catch(UnauthorizedException e){
@@ -198,6 +199,7 @@ public class Server {
                 gameJson.addProperty("whiteUsername", game.whiteUsername());
                 gameJson.addProperty("blackUsername", game.blackUsername());
                 gameJson.addProperty("gameName", game.gameName());
+                System.out.println(gameJson);
                 gamesArray.add(gameJson);
             }
             JsonObject jsonResponse = new JsonObject();
