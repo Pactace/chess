@@ -78,6 +78,7 @@ public class GameplayUI {
     private static void drawRowOfSquares(PrintStream out) {
 
         for (int squareRow = 0; squareRow < SQUARE_SIZE_IN_CHARS; ++squareRow) {
+            colorSwitch(out);
             for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
                 colorSwitch(out);
 
@@ -86,7 +87,6 @@ public class GameplayUI {
                     int suffixLength = SQUARE_SIZE_IN_CHARS - prefixLength - 1;
 
                     out.print(EMPTY.repeat(prefixLength));
-                    printPlayer(out, rand.nextBoolean() ? X : O);
                     out.print(EMPTY.repeat(suffixLength));
                 }
                 else {

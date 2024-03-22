@@ -15,6 +15,39 @@ public class ServerFacadeTests {
         System.out.println("Started test HTTP server on " + port);
     }
 
+    @Test
+    void successfulRegisterDoesNotThrowError() {
+    }
+
+
+    void badRegisterThrowsError() {
+    }
+
+
+    @Test
+    void login() {
+    }
+
+    @Test
+    void listGames() {
+    }
+
+    @Test
+    void createGame() {
+    }
+
+    @Test
+    void joinOrObserveGame() {
+    }
+
+    @Test
+    void logout() {
+    }
+
+    @Test
+    void clear() {
+    }
+
     @AfterAll
     static void stopServer() {
         server.stop();
