@@ -16,7 +16,7 @@ class ServerFacadeTeste {
     private static ServerFacade serverFacade;
 
     @BeforeAll
-    public static void init() {
+    public static void init() throws Exception {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
@@ -30,12 +30,14 @@ class ServerFacadeTeste {
 
         Assertions.assertNotEquals(null, authData.username());
         Assertions.assertNotEquals(null, authData.authToken());
+        serverFacade.clear();
     }
 
     @Test
-    void badRegisterThrowsError(){
+    void badRegisterThrowsError() throws Exception {
         UserData newUser = new UserData("test",null,"test");
         Assertions.assertThrows(Exception.class, () ->serverFacade.register(newUser));
+        serverFacade.clear();
     }
 
     @Test
@@ -46,6 +48,7 @@ class ServerFacadeTeste {
 
         Assertions.assertNotEquals(null, authData.username());
         Assertions.assertNotEquals(null, authData.authToken());
+        serverFacade.clear();
     }
 
     @Test
@@ -54,6 +57,7 @@ class ServerFacadeTeste {
         serverFacade.register(newUser);
         UserData badLogin = new UserData("test",null,"test");
         Assertions.assertThrows(Exception.class, () ->serverFacade.login(badLogin));
+        serverFacade.clear();
     }
 
     @Test
@@ -66,11 +70,13 @@ class ServerFacadeTeste {
         serverFacade.createGame("1");
         serverFacade.createGame("1");
         Assertions.assertEquals(5,serverFacade.listGames().length);
+        serverFacade.clear();
     }
 
     @Test
     void noAuthTokenOnListThrows() throws Exception {
         Assertions.assertThrows(Exception.class, () ->serverFacade.listGames());
+        serverFacade.clear();
     }
 
     @Test
@@ -78,11 +84,13 @@ class ServerFacadeTeste {
         UserData newUser = new UserData("test","test","test");
         serverFacade.register(newUser);
         Assertions.assertEquals(1, serverFacade.createGame("1"));
+        serverFacade.clear();
     }
 
     @Test
     void noAuthTokeOnCreateGameThrowsException() throws Exception {
         Assertions.assertThrows(Exception.class, () ->serverFacade.createGame("Test"));
+        serverFacade.clear();
     }
 
     @Test
@@ -92,16 +100,19 @@ class ServerFacadeTeste {
         serverFacade.createGame("test");
         serverFacade.joinOrObserveGame(1, "WHITE");
         Assertions.assertNotEquals(null, server.gameDAO.getGame(1).whiteUsername());
+        serverFacade.clear();
     }
 
     @Test
-    void joinGameThrowsException() {
+    void joinGameThrowsException() throws Exception {
         Assertions.assertThrows(Exception.class, () -> serverFacade.joinOrObserveGame(1, "WHITE"));
+        serverFacade.clear();
     }
 
     @Test
-    void ObserveGameThrowsException() {
+    void ObserveGameThrowsException() throws Exception {
         Assertions.assertThrows(Exception.class, () -> serverFacade.joinOrObserveGame(0, "WHITE"));
+        serverFacade.clear();
     }
 
     @Test
@@ -110,6 +121,7 @@ class ServerFacadeTeste {
         String authToken = serverFacade.register(newUser).authToken();
         serverFacade.logout();
         Assertions.assertNull(server.authDAO.getAuthData(authToken));
+        serverFacade.clear();
     }
 
     @Test
@@ -130,6 +142,5 @@ class ServerFacadeTeste {
     @AfterAll
     static void stopServer() throws Exception {
         server.stop();
-        serverFacade.clear();
     }
 }

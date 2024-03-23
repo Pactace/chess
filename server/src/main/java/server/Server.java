@@ -24,7 +24,7 @@ import java.util.Collection;
 
 public class Server {
     private final Service service;
-    UserDAO userDAO = null;
+    public UserDAO userDAO = null;
     public AuthDAO authDAO = null;
     public GameDAO gameDAO = null;
 
