@@ -69,7 +69,7 @@ class ServerFacadeTeste {
         serverFacade.createGame("1");
         serverFacade.createGame("1");
         serverFacade.createGame("1");
-        Assertions.assertEquals(5,serverFacade.listGames().length);
+        assertEquals(5,serverFacade.listGames().length);
         serverFacade.clear();
     }
 
@@ -83,7 +83,7 @@ class ServerFacadeTeste {
     void createGameReturnsGameID() throws Exception {
         UserData newUser = new UserData("test","test","test");
         serverFacade.register(newUser);
-        Assertions.assertEquals(1, serverFacade.createGame("1"));
+        assertEquals(1, serverFacade.createGame("1"));
         serverFacade.clear();
     }
 
