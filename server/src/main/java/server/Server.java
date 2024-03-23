@@ -26,7 +26,7 @@ public class Server {
     private final Service service;
     UserDAO userDAO = null;
     public AuthDAO authDAO = null;
-    GameDAO gameDAO = null;
+    public GameDAO gameDAO = null;
 
     {
         try {
