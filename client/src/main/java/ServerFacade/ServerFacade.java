@@ -84,7 +84,6 @@ public class ServerFacade {
         }
     }
 
-
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         http.addRequestProperty("Authorization", authToken);
         if (request != null) {

@@ -1,4 +1,5 @@
 package ServerFacade;
+import dataAccess.SQLAuthDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -85,7 +86,7 @@ class ServerFacadeTeste {
     }
 
     @Test
-    void joinGameThrowsNoException() {
+    void joinGameWorks() {
     }
 
     @Test
@@ -93,7 +94,16 @@ class ServerFacadeTeste {
     }
 
     @Test
-    void logout() {
+    void logoutWorks() throws Exception {
+        UserData newUser = new UserData("test","test","test");
+        String authToken = serverFacade.register(newUser).authToken();
+        serverFacade.logout();
+        Assertions.assertNull(server.authDAO.getAuthData(authToken));
+    }
+
+    @Test
+    void noAuthTokenLogoutThrowsException() {
+        Assertions.assertThrows(Exception.class, () ->serverFacade.logout());
     }
 
     @Test
