@@ -130,8 +130,8 @@ class ServerFacadeTeste {
     }
 
     @Test
-    void clear(){
-
+    void clear() {
+        Assertions.assertDoesNotThrow(() -> serverFacade.clear());
     }
 
     @Test
