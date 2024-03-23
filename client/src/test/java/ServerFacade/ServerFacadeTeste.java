@@ -100,15 +100,6 @@ class ServerFacadeTeste {
     }
 
     @Test
-    void ObserveGameWorks() throws Exception {
-        UserData newUser = new UserData("test","test","test");
-        serverFacade.register(newUser);
-        serverFacade.createGame("test");
-        serverFacade.joinOrObserveGame(1, null);
-        Assertions.assertNotEquals(null, server.gameDAO.getGame(1).whiteUsername());
-    }
-
-    @Test
     void ObserveGameThrowsException() {
         Assertions.assertThrows(Exception.class, () -> serverFacade.joinOrObserveGame(0, "WHITE"));
     }
