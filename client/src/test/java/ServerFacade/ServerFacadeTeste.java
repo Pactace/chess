@@ -86,7 +86,12 @@ class ServerFacadeTeste {
     }
 
     @Test
-    void joinGameWorks() {
+    void joinGameWorks() throws Exception {
+        UserData newUser = new UserData("test","test","test");
+        serverFacade.register(newUser);
+        serverFacade.createGame("test");
+        serverFacade.joinOrObserveGame(1, "WHITE");
+        Assertions.assertNotEquals(null, server.gameDAO.getGame(1).whiteUsername());
     }
 
     @Test
