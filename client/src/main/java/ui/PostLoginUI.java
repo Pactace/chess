@@ -1,6 +1,6 @@
 package ui;
 
-import ServerFacade.ServerFacade;
+import clientTests.ServerFacade;
 import model.GameData;
 
 import java.util.Scanner;

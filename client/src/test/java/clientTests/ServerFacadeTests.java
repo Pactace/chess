@@ -1,5 +1,4 @@
-package ServerFacade;
-import dataAccess.SQLAuthDAO;
+package clientTests;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -10,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-class ServerFacadeTeste {
+class ServerFacadeTests {
 
     private static Server server;
     private static ServerFacade serverFacade;

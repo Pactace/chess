@@ -1,9 +1,8 @@
 package ui;
 
-import ServerFacade.ServerFacade;
+import clientTests.ServerFacade;
 import model.UserData;
 
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class PreLoginUI {

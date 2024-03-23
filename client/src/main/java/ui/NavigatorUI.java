@@ -1,6 +1,6 @@
 package ui;
 
-import ServerFacade.ServerFacade;
+import clientTests.ServerFacade;
 
 public class NavigatorUI {
     //here we are going to put the serverFacade we will be using just so all the authTokens are consistent
