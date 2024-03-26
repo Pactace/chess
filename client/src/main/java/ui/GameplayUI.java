@@ -4,12 +4,13 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
+import static java.lang.Math.abs;
 import static ui.EscapeSequences.*;
 
 public class GameplayUI {
 
     private static final int BOARD_SIZE_IN_SQUARES = 8;
-    private static final int SQUARE_SIZE_IN_CHARS = 2;
+    private static final int SQUARE_SIZE_IN_CHARS = 1;
     private static final int LINE_WIDTH_IN_CHARS = 1;
     private static final String EMPTY = "   ";
     private static boolean tileColor = true;
@@ -22,27 +23,45 @@ public class GameplayUI {
 
         out.print("    ");
 
-        drawHeaders(out);
+        drawHeaders(out, true);
 
-        drawChessBoard(out);
+        drawChessBoard(out, true);
 
         out.print("    ");
-        drawHeaders(out);
+        drawHeaders(out, true);
+
+        out.print("    ");
+
+        drawHeaders(out, false);
+
+        drawChessBoard(out, false);
+
+        out.print("    ");
+        drawHeaders(out, false);
+
 
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_WHITE);
     }
 
-    private static void drawHeaders(PrintStream out) {
+    private static void drawHeaders(PrintStream out, boolean white) {
 
         setBlack(out);
+        out.print(" ");
+        String[] whiteHeaders = { "a","b","c","d","e","f","g","h" };
+        String[] blackHeaders = { "h","g","f","e","d","c","b","a" };
+        String[] headers;
 
-        String[] headers = { "a","b","c","d","e","f","g","h" };
+        if(white)
+            headers = whiteHeaders;
+        else
+            headers = blackHeaders;
+
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             drawHeader(out, headers[boardCol]);
 
             if (boardCol < BOARD_SIZE_IN_SQUARES - 1) {
-                out.print(EMPTY.repeat(LINE_WIDTH_IN_CHARS));
+                out.print("  ");
             }
         }
 
@@ -50,11 +69,7 @@ public class GameplayUI {
     }
 
     private static void drawHeader(PrintStream out, String headerText) {
-        int prefixLength = SQUARE_SIZE_IN_CHARS / 2;
-        // int suffixLength = SQUARE_SIZE_IN_CHARS / 2;
-        out.print("  ");
         printHeaderText(out, headerText);
-        //out.print(EMPTY.repeat(suffixLength));
     }
 
     private static void printHeaderText(PrintStream out, String player) {
@@ -66,23 +81,26 @@ public class GameplayUI {
         setBlack(out);
     }
 
-    private static void drawChessBoard(PrintStream out) {
+    private static void drawChessBoard(PrintStream out, boolean white) {
 
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
             colorSwitch(out);
-            drawRowNumbers(out, boardRow + 1);
+            drawRowNumbers(out, boardRow + 1, white);
             out.print(EMPTY);
-            drawRowOfSquares(out, boardRow + 1);
+            drawRowOfSquares(out, boardRow + 1, white);
             //drawRowNumbers(out, boardRow);
         }
     }
 
-    private static void drawRowNumbers(PrintStream out, int boardRow){
+    private static void drawRowNumbers(PrintStream out, int boardRow, boolean white){
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_GREEN);
-        out.print(boardRow);
+        if(white)
+            out.print(boardRow);
+        else
+            out.print(abs(boardRow - 9));
     }
-    private static void drawRowOfSquares(PrintStream out, int rowNum) {
+    private static void drawRowOfSquares(PrintStream out, int rowNum, boolean white) {
         for (int squareHieght = 0; squareHieght < SQUARE_SIZE_IN_CHARS; ++squareHieght) {
             if(squareHieght > 0){
                 out.print(" ");
@@ -97,7 +115,7 @@ public class GameplayUI {
             }
             if(squareHieght == 0){
                 out.print(EMPTY);
-                drawRowNumbers(out, rowNum);
+                drawRowNumbers(out, rowNum, white);
             }
             out.println();
         }
