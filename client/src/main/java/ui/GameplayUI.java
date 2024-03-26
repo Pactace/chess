@@ -48,8 +48,8 @@ public class GameplayUI {
 
         setBlack(out);
         out.print(" ");
-        String[] whiteHeaders = { "a","b","c","d","e","f","g","h" };
-        String[] blackHeaders = { "h","g","f","e","d","c","b","a" };
+        String[] blackHeaders = { "a","b","c","d","e","f","g","h" };
+        String[] whiteHeaders = { "h","g","f","e","d","c","b","a" };
         String[] headers;
 
         if(white)
@@ -101,15 +101,59 @@ public class GameplayUI {
             out.print(abs(boardRow - 9));
     }
     private static void drawRowOfSquares(PrintStream out, int rowNum, boolean white) {
+        String[] blackBackLinePieces = {" R ", " N ", " B ", " K ", " Q ", " B ", " N ", " R "};
+        String[] whiteBackLinePieces = {" R ", " N ", " B ", " Q ", " K ", " B ", " N ", " R "};
         for (int squareHieght = 0; squareHieght < SQUARE_SIZE_IN_CHARS; ++squareHieght) {
+            //this is the spacing
             if(squareHieght > 0){
                 out.print(" ");
                 out.print(EMPTY);
             }
             for (int squareWidth = 0; squareWidth < BOARD_SIZE_IN_SQUARES; ++squareWidth) {
                 colorSwitch(out);
+                //if we are on the top row
+                if(rowNum == 1){
+                    if(white){
+                        setGrey(out);
+                        out.print(whiteBackLinePieces[squareWidth]);
+                    }
+                    else{
+                        setMagenta(out);
+                        out.print(blackBackLinePieces[squareWidth]);
+                    }
+                }
+                //if we are the second to top row
+                else if(rowNum == 2){
+                    if(white)
+                        setGrey(out);
 
-                out.print(EMPTY.repeat(SQUARE_SIZE_IN_CHARS));
+                    else
+                        setMagenta(out);
+                    out.print(" P ");
+                }
+                //if we are on the second to bottom row
+                else if(rowNum == 7){
+                    if(white)
+                        setMagenta(out);
+
+                    else
+                        setGrey(out);
+                    out.print(" P ");
+                }
+                //if we are the bottom row
+                else if(rowNum == 8){
+                    if(white){
+                        setMagenta(out);
+                        out.print(whiteBackLinePieces[squareWidth]);
+                    }
+                    else{
+                        setGrey(out);
+                        out.print(blackBackLinePieces[squareWidth]);
+                    }
+                }
+                else{
+                    out.print(EMPTY);
+                }
 
                 setBlack(out);
             }
@@ -134,6 +178,14 @@ public class GameplayUI {
     private static void setBlack(PrintStream out) {
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_BLACK);
+    }
+
+    private static void setGrey(PrintStream out) {
+        out.print(SET_TEXT_COLOR_DARK_GREY);
+    }
+
+    private static void setMagenta(PrintStream out) {
+        out.print(SET_TEXT_COLOR_MAGENTA);
     }
 
     private static void colorSwitch(PrintStream out){
