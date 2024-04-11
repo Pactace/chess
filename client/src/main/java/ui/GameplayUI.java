@@ -36,16 +36,6 @@ public class GameplayUI {
     public void main(String[] args) {
         System.out.print("\u001b[36;1m");
         System.out.println("♕ Welcome to the game chosen one your trial starts now: Type 'help' to get started");
-
-        //so I need to get the game ID and the player name from when we get here and then I can set the board creation.
-        try {
-            GameData[] games = serverFacade.listGames();
-            GameData game = games[gameID - 1];
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
         boardCreation(color);
         commandPrompt(args);
     }
