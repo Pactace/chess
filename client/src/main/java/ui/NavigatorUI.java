@@ -14,8 +14,8 @@ public class NavigatorUI {
         PostLoginUI postLoginUI = new PostLoginUI(this, serverFacade, username);
         postLoginUI.main(args);
     }
-    public void transferToGamePlayUI(String[] args, int gameID, String username){
-        GameplayUI GameplayUI = new GameplayUI(this, serverFacade, gameID, username);
+    public void transferToGamePlayUI(String[] args, int gameID, String username, String color){
+        GameplayUI GameplayUI = new GameplayUI(this, serverFacade, gameID, username, color);
         GameplayUI.main(args);
     }
 }

@@ -20,17 +20,18 @@ public class GameplayUI {
 
     private final NavigatorUI navigator;
     private final ServerFacade serverFacade;
-    private int gameID;
-    private String username;
-    private String color = "";
+    private final int gameID;
+    private final String username;
+    private String color;
 
 
 
-    GameplayUI(NavigatorUI navigator, ServerFacade serverFacade, int gameID, String username){
+    GameplayUI(NavigatorUI navigator, ServerFacade serverFacade, int gameID, String username, String color){
         this.navigator = navigator;
         this.serverFacade = serverFacade;
         this.gameID = gameID;
         this.username = username;
+        this.color = color;
     }
     public void main(String[] args) {
         System.out.print("\u001b[36;1m");
@@ -39,15 +40,7 @@ public class GameplayUI {
         //so I need to get the game ID and the player name from when we get here and then I can set the board creation.
         try {
             GameData[] games = serverFacade.listGames();
-            GameData game = games[gameID];
-
-            //here we are going to set if the color usernames the same as this username
-            if(username.equalsIgnoreCase(game.whiteUsername())){
-                color = "WHITE";
-            }
-            else if(username.equalsIgnoreCase(game.blackUsername())){
-                color = "BLACK";
-            }
+            GameData game = games[gameID - 1];
 
         } catch (Exception e) {
             throw new RuntimeException(e);

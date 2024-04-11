@@ -10,8 +10,8 @@ public class PostLoginUI {
     private final NavigatorUI navigator;
     private final ServerFacade serverFacade;
     private int path = 0;
-
     private String username;
+    private String color = "";
 
     PostLoginUI(NavigatorUI navigator, ServerFacade serverFacade, String username){
         this.navigator = navigator;
@@ -42,7 +42,7 @@ public class PostLoginUI {
             navigator.transferToPreLoginUI(args);
         }
         else{
-            navigator.transferToGamePlayUI(args, path, username);
+            navigator.transferToGamePlayUI(args, path, username, color);
         }
     }
 
@@ -135,6 +135,7 @@ public class PostLoginUI {
             if(loginData.length == 2){
                 try{
                     serverFacade.joinOrObserveGame(Integer.parseInt(loginData[0]), loginData[1]);
+                    color = loginData[1];
                     return Integer.parseInt(loginData[0]);
                 }
                 catch(Exception e){
