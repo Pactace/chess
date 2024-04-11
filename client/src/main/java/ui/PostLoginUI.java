@@ -11,9 +11,12 @@ public class PostLoginUI {
     private final ServerFacade serverFacade;
     private int path = 0;
 
-    PostLoginUI(NavigatorUI navigator, ServerFacade serverFacade){
+    private String username;
+
+    PostLoginUI(NavigatorUI navigator, ServerFacade serverFacade, String username){
         this.navigator = navigator;
         this.serverFacade = serverFacade;
+        this.username = username;
     }
     public void main(String[] args) {
         System.out.print("\u001b[36;1m");
@@ -38,8 +41,8 @@ public class PostLoginUI {
         if(path == -1){
             navigator.transferToPreLoginUI(args);
         }
-        else if(path == 1){
-            navigator.transferToGamePlayUI(args);
+        else{
+            navigator.transferToGamePlayUI(args, path, username);
         }
     }
 
@@ -132,7 +135,7 @@ public class PostLoginUI {
             if(loginData.length == 2){
                 try{
                     serverFacade.joinOrObserveGame(Integer.parseInt(loginData[0]), loginData[1]);
-                    return 1;
+                    return Integer.parseInt(loginData[0]);
                 }
                 catch(Exception e){
                     System.out.println("Join didnt work");
@@ -159,9 +162,12 @@ public class PostLoginUI {
 
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
+
             try{
                 serverFacade.joinOrObserveGame(Integer.parseInt(line), null);
-                return 1;
+
+                //the gameID will be used in the transition so that we can figure out what side the person is on
+                return Integer.parseInt(line);
             }
             catch(Exception e){
                 System.out.println("Join didnt work");

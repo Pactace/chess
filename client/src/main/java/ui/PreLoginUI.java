@@ -1,6 +1,7 @@
 package ui;
 
 import clientTests.ServerFacade;
+import model.AuthData;
 import model.UserData;
 
 import java.util.Scanner;
@@ -8,6 +9,8 @@ import java.util.Scanner;
 public class PreLoginUI {
     private final NavigatorUI navigator;
     private final ServerFacade serverFacade;
+    private String loggedInUsername;
+
     PreLoginUI(NavigatorUI navigator, ServerFacade serverFacade){
         this.navigator = navigator;
         this.serverFacade = serverFacade;
@@ -40,7 +43,7 @@ public class PreLoginUI {
                 break;
             }
         }
-        navigator.transferToPostLoginUI(args);
+        navigator.transferToPostLoginUI(args, loggedInUsername);
     }
 
     /**
@@ -89,7 +92,7 @@ public class PreLoginUI {
             if(loginData.length == 2){
                 UserData newUser = new UserData(loginData[0], loginData[1], null);
                 try{
-                    serverFacade.login(newUser);
+                    loggedInUsername = serverFacade.login(newUser).username();
                     return true;
                 }
                 catch(Exception e){
@@ -122,7 +125,8 @@ public class PreLoginUI {
             if(loginData.length == 3){
                 UserData newUser = new UserData(loginData[0], loginData[1], loginData[2]);
                 try{
-                    serverFacade.register(newUser);
+                    //here we are going to register and store the username for future use
+                    loggedInUsername = serverFacade.register(newUser).username();
                     return true;
                 }
                 catch(Exception e){
