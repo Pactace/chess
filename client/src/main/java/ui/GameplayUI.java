@@ -1,5 +1,7 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import clientTests.ServerFacade;
 import model.GameData;
 
@@ -22,7 +24,7 @@ public class GameplayUI {
     private final ServerFacade serverFacade;
     private final int gameID;
     private final String username;
-    private String color;
+    private static String color;
 
 
 
@@ -33,14 +35,16 @@ public class GameplayUI {
         this.username = username;
         this.color = color;
     }
-    public void main(String[] args) {
+    public void main(String[] args) throws Exception {
         System.out.print("\u001b[36;1m");
         System.out.println("♕ Welcome to the game chosen one your trial starts now: Type 'help' to get started");
-        boardCreation(color);
+        GameData[] games = serverFacade.listGames();
+        ChessGame game = games[gameID - 1].game();
+        ChessBoard gameBoard = game.getBoard();
         commandPrompt(args);
     }
 
-    private void commandPrompt(String[] args){
+    private void commandPrompt(String[] args) throws Exception {
         //this starts a loop that will continually check for inputs
         while (true) {
             System.out.print("\u001b[49;m");
@@ -58,7 +62,7 @@ public class GameplayUI {
      * what function it comes from
      * We will then navigate to that page
      */
-    private void commandCheck(String command, String[] args){
+    private void commandCheck(String command, String[] args) throws Exception {
         if(command.equalsIgnoreCase("help")){
             help();
         }
@@ -90,11 +94,14 @@ public class GameplayUI {
         System.out.print("\u001b[107;1m");
         System.out.print("\u001b[34;1m");
         System.out.println("'help' - it refreshes you on the commands");
-        System.out.println("'redraw' - this will redraw the chessBoard");
-        System.out.println("'legal' - this will highlight all the legal moves for a specified piece");
-        System.out.println("'move' - here you can make a move on a specified piece");
+        if(color != ""){
+            System.out.println("'redraw' - this will redraw the chessBoard");
+            System.out.println("'legal' - this will highlight all the legal moves for a specified piece");
+            System.out.println("'move' - here you can make a move on a specified piece");
+            System.out.print("\u001b[31;1m");
+            System.out.println("'resign' - this is how you resign the game. after this no more moves can be made");
+        }
         System.out.print("\u001b[31;1m");
-        System.out.println("'resign' - this is how you resign the game. after this no more moves can be made");
         System.out.println("'leave' - this will end your session with us and send you back to the post-login page");
     }
 

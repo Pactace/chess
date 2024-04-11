@@ -15,13 +15,13 @@ public class PreLoginUI {
         this.navigator = navigator;
         this.serverFacade = serverFacade;
     }
-    public void main(String[] args) {
+    public void main(String[] args) throws Exception {
         System.out.print("\u001b[36;1m");
         System.out.println("♕ Welcome to the 240 Chess Client: Type 'help' to get started");
         commandPrompt(args);
     }
 
-    private void commandPrompt(String[] args){
+    private void commandPrompt(String[] args) throws Exception {
         //this starts a loop that will continually check for inputs
         while (true) {
             System.out.print("\u001b[32;1m");

@@ -18,13 +18,13 @@ public class PostLoginUI {
         this.serverFacade = serverFacade;
         this.username = username;
     }
-    public void main(String[] args) {
+    public void main(String[] args) throws Exception {
         System.out.print("\u001b[36;1m");
         System.out.println("♕ Hey your in! Welcome to the VIP suite make yourself at home B): Type 'help' to get started");
         commandPrompt(args);
     }
 
-    private void commandPrompt(String[] args){
+    private void commandPrompt(String[] args) throws Exception {
         //this starts a loop that will continually check for inputs
         while (true) {
             System.out.print("\u001b[49;m");
