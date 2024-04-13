@@ -1,20 +1,18 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import clientTests.ServerFacade;
 import model.GameData;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
 import static java.lang.Math.abs;
-import static ui.BoardCreation.boardCreation;
-import static ui.BoardCreation.setBoard;
+import static ui.BoardCreation.*;
 import static ui.EscapeSequences.*;
 
 public class GameplayUI {
@@ -24,7 +22,7 @@ public class GameplayUI {
     private final String username;
     private static String color;
     private static ChessBoard board;
-
+    private static ChessGame game;
 
 
     GameplayUI(NavigatorUI navigator, ServerFacade serverFacade, int gameID, String username, String color){
@@ -38,7 +36,7 @@ public class GameplayUI {
         System.out.print("\u001b[36;1m");
         System.out.println("♕ Welcome to the game chosen one your trial starts now: Type 'help' to get started");
         GameData[] games = serverFacade.listGames();
-        ChessGame game = games[gameID - 1].game();
+        game = games[gameID - 1].game();
         if(game == null){
             game = new ChessGame();
             game.setBoard(new ChessBoard());
@@ -112,7 +110,7 @@ public class GameplayUI {
     }
 
     private static void legal(){
-        //Here we are going to enter the username and password separated by spaces.
+        //Here we are going to enter the chess position to get the legal moves
         System.out.print("\u001b[104;1m");
         System.out.print("\u001b[30;1m");
         System.out.println("To see what moves are legal by a piece enter the piece position like this (without the dash, or quotation marks):");
@@ -128,6 +126,19 @@ public class GameplayUI {
         char[] input = scanner.nextLine().toCharArray();
         if(input.length == 2){
             ChessPosition chessPosition = convertToChessPosition(input);
+            //for each of the valid moves we are going to store the rows and columns
+            ChessMove[] chessMoves = game.validMoves(chessPosition).toArray(new ChessMove[0]);
+            Map<Integer, Integer> locations = new HashMap<>();
+            for (ChessMove chessMove : chessMoves) {
+                //we are going to create a list of possible moves
+                int row = chessMove.getEndPosition().getRow();
+                int col = chessMove.getEndPosition().getColumn();
+
+                //here we are going to make a map that will make it easy to find any pieces of the board that are possible moves
+                locations.put(row, col);
+            }
+            legalMoves = locations;
+
         }
         else{
             System.out.print("\u001b[31;1m");
@@ -135,12 +146,11 @@ public class GameplayUI {
         }
     }
 
-    /*
-    here we are going to go through each of the characters and depending on which character the player
-    inputted we will convert that to its column number
-    if there is no match we will tell the user to put in a valid input
+    /**
+    This is a helper function to convert the user input to a valid chess position
     */
     private static ChessPosition convertToChessPosition(char[] input) {
+        int rowNum = Integer.parseInt("" + input[1]);
         char[] characterList = {'a','b','c','d','e','f','g','h'};
         int colNum = 0;
         ChessPosition chessPosition = null;
@@ -151,12 +161,12 @@ public class GameplayUI {
             }
         }
         //if the input is not a character in range or a digit in range
-        if((colNum == 0) || (Integer.parseInt("" + input[1]) < 1 ) || (Integer.parseInt("" + input[1]) > 8 )) {
+        if((rowNum < 1 ) || (rowNum > 8 ) || (colNum == 0)) {
             System.out.print("\u001b[31;1m");
             System.out.println("Make sure your input is correct you dweeb");
         }
         else{
-            chessPosition = new ChessPosition(input[1], colNum);
+            chessPosition = new ChessPosition(rowNum, colNum);
         }
         return chessPosition;
     }

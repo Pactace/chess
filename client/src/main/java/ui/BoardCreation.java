@@ -7,6 +7,7 @@ import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static java.lang.Math.abs;
 import static ui.EscapeSequences.*;
@@ -15,6 +16,7 @@ public class BoardCreation {
     private static ChessBoard board;
     private static boolean tileColor = true;
     private static final String EMPTY = "   ";
+    public static Map<Integer, Integer> legalMoves;
 
     public static void setBoard(ChessBoard passedBoard){
         board = passedBoard;
@@ -164,6 +166,13 @@ public class BoardCreation {
     private static void setBlue(PrintStream out) {
         out.print(SET_BG_COLOR_BLUE);
         out.print(SET_TEXT_COLOR_BLUE);
+    }
+    private static void setGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_GREEN);
+    }
+
+    private static void setDarkGreen(PrintStream out) {
+        out.print(SET_BG_COLOR_DARK_GREEN);
     }
 
     private static void setBlack(PrintStream out) {
