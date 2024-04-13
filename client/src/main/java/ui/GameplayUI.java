@@ -2,6 +2,8 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import clientTests.ServerFacade;
 import model.GameData;
 
@@ -19,12 +21,12 @@ public class GameplayUI {
     private static final int SQUARE_SIZE_IN_CHARS = 1;
     private static final String EMPTY = "   ";
     private static boolean tileColor = true;
-
     private final NavigatorUI navigator;
     private final ServerFacade serverFacade;
     private final int gameID;
     private final String username;
     private static String color;
+    private static ChessBoard board;
 
 
 
@@ -40,7 +42,13 @@ public class GameplayUI {
         System.out.println("♕ Welcome to the game chosen one your trial starts now: Type 'help' to get started");
         GameData[] games = serverFacade.listGames();
         ChessGame game = games[gameID - 1].game();
-        ChessBoard gameBoard = game.getBoard();
+        if(game == null){
+            game = new ChessGame();
+            game.setBoard(new ChessBoard());
+            board = game.getBoard();
+            board.resetBoard();
+        }
+        boardCreation(color);
         commandPrompt(args);
     }
 
@@ -143,8 +151,8 @@ public class GameplayUI {
 
         setBlack(out);
         out.print(" ");
-        String[] blackHeaders = { "a","b","c","d","e","f","g","h" };
-        String[] whiteHeaders = { "h","g","f","e","d","c","b","a" };
+        String[] whiteHeaders = { "a","b","c","d","e","f","g","h" };
+        String[] blackHeaders = { "h","g","f","e","d","c","b","a" };
         String[] headers;
 
         if(white)
@@ -177,87 +185,70 @@ public class GameplayUI {
     }
 
     private static void drawChessBoard(PrintStream out, boolean white) {
+        int startRow = (!white ? 0 : BOARD_SIZE_IN_SQUARES - 1);
+        int endRow = (!white ? BOARD_SIZE_IN_SQUARES : -1);
+        int rowIncrement = (!white ? 1 : -1);
 
-        for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
+        for (int boardRow = startRow; boardRow != endRow; boardRow += rowIncrement) {
             colorSwitch(out);
             drawRowNumbers(out, boardRow + 1, white);
             out.print(EMPTY);
             drawRowOfSquares(out, boardRow + 1, white);
-            //drawRowNumbers(out, boardRow);
         }
     }
 
     private static void drawRowNumbers(PrintStream out, int boardRow, boolean white){
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_GREEN);
-        if(white)
+        if(!white)
             out.print(boardRow);
         else
             out.print(abs(boardRow - 9));
     }
     private static void drawRowOfSquares(PrintStream out, int rowNum, boolean white) {
-        String[] blackBackLinePieces = {" R ", " N ", " B ", " K ", " Q ", " B ", " N ", " R "};
-        String[] whiteBackLinePieces = {" R ", " N ", " B ", " Q ", " K ", " B ", " N ", " R "};
-        for (int squareHieght = 0; squareHieght < SQUARE_SIZE_IN_CHARS; ++squareHieght) {
-            //this is the spacing
-            if(squareHieght > 0){
-                out.print(" ");
+        int startWidth = (!white ? 8 : 1);
+        int endWidth = (!white ? 0 : 9);
+        int widthIncrement = (!white ? -1 : 1);
+
+        for (int squareWidth = startWidth; squareWidth != endWidth; squareWidth += widthIncrement) {
+            colorSwitch(out);
+            if (board.getPiece(new ChessPosition(rowNum, squareWidth)) != null) {
+                ChessPiece piece = board.getPiece(new ChessPosition(rowNum, squareWidth));
+                if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    setMagenta(out);
+                } else {
+                    setGrey(out);
+                }
+
+                switch (piece.getPieceType()) {
+                    case ROOK:
+                        out.print(" R ");
+                        break;
+                    case KNIGHT:
+                        out.print(" N ");
+                        break;
+                    case BISHOP:
+                        out.print(" B ");
+                        break;
+                    case QUEEN:
+                        out.print(" Q ");
+                        break;
+                    case KING:
+                        out.print(" K ");
+                        break;
+                    case PAWN:
+                        out.print(" P ");
+                        break;
+                }
+            } else {
                 out.print(EMPTY);
             }
-            for (int squareWidth = 0; squareWidth < BOARD_SIZE_IN_SQUARES; ++squareWidth) {
-                colorSwitch(out);
-                //if we are on the top row
-                if(rowNum == 1){
-                    if(white){
-                        setGrey(out);
-                        out.print(whiteBackLinePieces[squareWidth]);
-                    }
-                    else{
-                        setMagenta(out);
-                        out.print(blackBackLinePieces[squareWidth]);
-                    }
-                }
-                //if we are the second to top row
-                else if(rowNum == 2){
-                    if(white)
-                        setGrey(out);
-
-                    else
-                        setMagenta(out);
-                    out.print(" P ");
-                }
-                //if we are on the second to bottom row
-                else if(rowNum == 7){
-                    if(white)
-                        setMagenta(out);
-
-                    else
-                        setGrey(out);
-                    out.print(" P ");
-                }
-                //if we are the bottom row
-                else if(rowNum == 8){
-                    if(white){
-                        setMagenta(out);
-                        out.print(whiteBackLinePieces[squareWidth]);
-                    }
-                    else{
-                        setGrey(out);
-                        out.print(blackBackLinePieces[squareWidth]);
-                    }
-                }
-                else{
-                    out.print(EMPTY);
-                }
-
-                setBlack(out);
-            }
-            if(squareHieght == 0){
-                out.print(EMPTY);
-                drawRowNumbers(out, rowNum, white);
-            }
-            out.println();
+            setBlack(out);
         }
+
+        out.print(EMPTY);
+        drawRowNumbers(out, rowNum, white);
+        out.println();
     }
 
     private static void setWhite(PrintStream out) {

@@ -57,25 +57,21 @@ public class ChessBoard {
             if(i == 0){
                 for(int j = 0; j < 8; j++){
                     squares[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, firstRow[j]);
-                    System.out.println(squares[i][j].toString());
                 }
             }
             else if(i == 1){
                 for(int j = 0; j < 8; j++){
                     squares[i][j] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-                    System.out.println(squares[i][j].toString());
                 }
             }
             else if(i == 6){
                 for(int j = 0; j < 8; j++){
                     squares[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-                    System.out.println(squares[i][j].toString());
                 }
             }
             else if(i == 7){
                 for(int j = 0; j < 8; j++){
                     squares[i][j] = new ChessPiece(ChessGame.TeamColor.BLACK, firstRow[j]);
-                    System.out.println(squares[i][j].toString());
                 }
             }
         }
