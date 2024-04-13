@@ -16,7 +16,7 @@ public class BoardCreation {
     private static ChessBoard board;
     private static boolean tileColor = true;
     private static final String EMPTY = "   ";
-    public static Map<Integer, Integer> legalMoves;
+    public static boolean[][] legalMoves = new boolean[8][8];
 
     public static void setBoard(ChessBoard passedBoard){
         board = passedBoard;
@@ -98,7 +98,8 @@ public class BoardCreation {
         int rowIncrement = (!white ? 1 : -1);
 
         for (int boardRow = startRow; boardRow != endRow; boardRow += rowIncrement) {
-            colorSwitch(out);
+
+            colorSwitch(out, legalMoves[boardRow][0]);
             drawRowNumbers(out, boardRow + 1, white);
             out.print(EMPTY);
             drawRowOfSquares(out, boardRow + 1, white);
@@ -114,14 +115,16 @@ public class BoardCreation {
             out.print(abs(boardRow - 9));
     }
     private static void drawRowOfSquares(PrintStream out, int rowNum, boolean white) {
-        int startWidth = (!white ? 8 : 1);
-        int endWidth = (!white ? 0 : 9);
-        int widthIncrement = (!white ? -1 : 1);
+        int startSquare = (!white ? 8 : 1);
+        int endSquare = (!white ? 0 : 9);
+        int increment = (!white ? -1 : 1);
 
-        for (int squareWidth = startWidth; squareWidth != endWidth; squareWidth += widthIncrement) {
-            colorSwitch(out);
-            if (board.getPiece(new ChessPosition(rowNum, squareWidth)) != null) {
-                ChessPiece piece = board.getPiece(new ChessPosition(rowNum, squareWidth));
+        for (int colNum = startSquare; colNum != endSquare; colNum += increment) {
+            //if legal moves have a true at this position then make sure that color switch prints out the greens
+            colorSwitch(out, legalMoves[rowNum-1][colNum-1]);
+
+            if (board.getPiece(new ChessPosition(rowNum, colNum)) != null) {
+                ChessPiece piece = board.getPiece(new ChessPosition(rowNum, colNum));
                 if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                     setMagenta(out);
                 } else {
@@ -188,13 +191,21 @@ public class BoardCreation {
         out.print(SET_TEXT_COLOR_MAGENTA);
     }
 
-    private static void colorSwitch(PrintStream out){
+    private static void colorSwitch(PrintStream out, boolean validMove){
         if(!tileColor){
-            setWhite(out);
+            if(!validMove)
+                setWhite(out);
+            else
+                setGreen(out);
+
             tileColor = true;
         }
         else{
-            setBlue(out);
+            if(!validMove)
+                setBlue(out);
+            else
+                setDarkGreen(out);
+
             tileColor = false;
         }
 
