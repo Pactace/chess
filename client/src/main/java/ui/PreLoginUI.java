@@ -10,6 +10,7 @@ public class PreLoginUI {
     private final NavigatorUI navigator;
     private final ServerFacade serverFacade;
     private String loggedInUsername;
+    private String authToken;
 
     PreLoginUI(NavigatorUI navigator, ServerFacade serverFacade){
         this.navigator = navigator;
@@ -43,7 +44,7 @@ public class PreLoginUI {
                 break;
             }
         }
-        navigator.transferToPostLoginUI(args, loggedInUsername);
+        navigator.transferToPostLoginUI(args, loggedInUsername, authToken);
     }
 
     /**
@@ -92,7 +93,9 @@ public class PreLoginUI {
             if(loginData.length == 2){
                 UserData newUser = new UserData(loginData[0], loginData[1], null);
                 try{
-                    loggedInUsername = serverFacade.login(newUser).username();
+                    AuthData authData = serverFacade.login(newUser);
+                    loggedInUsername = authData.username();
+                    authToken = authData.authToken();
                     return true;
                 }
                 catch(Exception e){
@@ -127,6 +130,7 @@ public class PreLoginUI {
                 try{
                     //here we are going to register and store the username for future use
                     loggedInUsername = serverFacade.register(newUser).username();
+
                     return true;
                 }
                 catch(Exception e){

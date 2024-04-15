@@ -14,9 +14,7 @@ import model.GameData;
 import model.UserData;
 import model.AuthData;
 import requests.JoinGameRequestData;
-import service.AlreadyTakenException;
-import service.BadRequestException;
-import service.UnauthorizedException;
+import service.*;
 import service.Service;
 import spark.*;
 
@@ -27,6 +25,7 @@ public class Server {
     public UserDAO userDAO = null;
     public AuthDAO authDAO = null;
     public GameDAO gameDAO = null;
+    private final WebSocketHandler webSocketHandler;
 
     {
         try {
@@ -40,6 +39,7 @@ public class Server {
 
     public Server() {
         service = new Service(userDAO, authDAO, gameDAO);
+        webSocketHandler = new WebSocketHandler(userDAO, authDAO, gameDAO);
     }
 
     public static void main(String[] args) {
@@ -50,6 +50,8 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/connect", webSocketHandler);
 
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::clear);

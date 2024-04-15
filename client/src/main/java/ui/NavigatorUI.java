@@ -10,12 +10,12 @@ public class NavigatorUI {
         PreLoginUI preLoginUI = new PreLoginUI(this, serverFacade);
         preLoginUI.main(args);
     }
-    public void transferToPostLoginUI(String[] args, String username) throws Exception {
-        PostLoginUI postLoginUI = new PostLoginUI(this, serverFacade, username);
+    public void transferToPostLoginUI(String[] args, String username, String authToken) throws Exception {
+        PostLoginUI postLoginUI = new PostLoginUI(this, serverFacade, username, authToken );
         postLoginUI.main(args);
     }
-    public void transferToGamePlayUI(String[] args, int gameID, String username, String color) throws Exception {
-        GameplayUI GameplayUI = new GameplayUI(this, serverFacade, gameID, username, color);
+    public void transferToGamePlayUI(String[] args, int gameID, String username, String authToken, String color) throws Exception {
+        GameplayUI GameplayUI = new GameplayUI(this, serverFacade, gameID, username, authToken, color);
         GameplayUI.main(args);
     }
 }

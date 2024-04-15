@@ -11,12 +11,14 @@ public class PostLoginUI {
     private final ServerFacade serverFacade;
     private int path = 0;
     private String username;
+    private String authToken;
     private String color = "";
 
-    PostLoginUI(NavigatorUI navigator, ServerFacade serverFacade, String username){
+    PostLoginUI(NavigatorUI navigator, ServerFacade serverFacade, String username, String authToken){
         this.navigator = navigator;
         this.serverFacade = serverFacade;
         this.username = username;
+        this.authToken = authToken;
     }
     public void main(String[] args) throws Exception {
         System.out.print("\u001b[36;1m");
@@ -42,7 +44,7 @@ public class PostLoginUI {
             navigator.transferToPreLoginUI(args);
         }
         else{
-            navigator.transferToGamePlayUI(args, path, username, color);
+            navigator.transferToGamePlayUI(args, path, username, authToken, color);
         }
     }
 

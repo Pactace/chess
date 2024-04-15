@@ -13,16 +13,18 @@ public class GameplayUI {
     private final ServerFacade serverFacade;
     private final int gameID;
     private final String username;
+    private final String authToken;
     private static String color;
     private static ChessBoard board;
     private static ChessGame game;
 
 
-    GameplayUI(NavigatorUI navigator, ServerFacade serverFacade, int gameID, String username, String color){
+    GameplayUI(NavigatorUI navigator, ServerFacade serverFacade, int gameID, String username, String authToken, String color){
         this.navigator = navigator;
         this.serverFacade = serverFacade;
         this.gameID = gameID;
         this.username = username;
+        this.authToken = authToken;
         this.color = color;
     }
     public void main(String[] args) throws Exception {
@@ -78,7 +80,7 @@ public class GameplayUI {
         }
         else if(command.equalsIgnoreCase("leave")) {
             //here all we need to do is take the user out
-            navigator.transferToPostLoginUI(args, username);
+            navigator.transferToPostLoginUI(args, username, authToken);
         }
     }
 
