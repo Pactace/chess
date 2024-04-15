@@ -93,16 +93,16 @@ public class BoardCreation {
     }
 
     private static void drawChessBoard(PrintStream out, boolean white) {
-        int startRow = (!white ? 0 : 8 - 1);
-        int endRow = (!white ? 8 : -1);
+        int startRow = (!white ?  1: 8);
+        int endRow = (!white ? 9 : 0);
         int rowIncrement = (!white ? 1 : -1);
 
         for (int boardRow = startRow; boardRow != endRow; boardRow += rowIncrement) {
 
-            colorSwitch(out, legalMoves[boardRow][0]);
-            drawRowNumbers(out, boardRow + 1, white);
+            colorSwitch(out, legalMoves[boardRow-1][0]);
+            drawRowNumbers(out, boardRow, white);
             out.print(EMPTY);
-            drawRowOfSquares(out, boardRow + 1, white);
+            drawRowOfSquares(out, boardRow, white);
         }
     }
 
@@ -121,7 +121,7 @@ public class BoardCreation {
 
         for (int colNum = startSquare; colNum != endSquare; colNum += increment) {
             //if legal moves have a true at this position then make sure that color switch prints out the greens
-            colorSwitch(out, legalMoves[rowNum-1][colNum-1]);
+            colorSwitch(out, legalMoves[rowNum - 1][colNum -1]);
 
             if (board.getPiece(new ChessPosition(rowNum, colNum)) != null) {
                 ChessPiece piece = board.getPiece(new ChessPosition(rowNum, colNum));

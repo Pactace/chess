@@ -4,16 +4,9 @@ import chess.*;
 import clientTests.ServerFacade;
 import model.GameData;
 
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 import java.util.Scanner;
 
-import static java.lang.Math.abs;
 import static ui.BoardCreation.*;
-import static ui.EscapeSequences.*;
 
 public class GameplayUI {
     private final NavigatorUI navigator;
@@ -42,6 +35,7 @@ public class GameplayUI {
             game.setBoard(new ChessBoard());
             board = game.getBoard();
             board.resetBoard();
+            game.setTeamTurn(ChessGame.TeamColor.WHITE);
         }
         setBoard(board);
         boardCreation(color);
@@ -77,7 +71,7 @@ public class GameplayUI {
             legal();
         }
         else if(command.equalsIgnoreCase("move")){
-
+            move();
         }
         else if(command.equalsIgnoreCase("resign")){
 
@@ -113,14 +107,14 @@ public class GameplayUI {
         //Here we are going to enter the chess position to get the legal moves
         System.out.print("\u001b[104;1m");
         System.out.print("\u001b[30;1m");
-        System.out.println("To see what moves are legal by a piece enter the piece position like this (without the dash, or quotation marks):");
+        System.out.println("To make a move format the move like this(without the dash, or quotation marks):");
         System.out.print("\u001b[107;1m");
         System.out.print("\u001b[35;1m");
         System.out.println("'letter-number'");
 
         System.out.print("\u001b[49;m");
         System.out.print("\u001b[33;1m");
-        System.out.printf("[ENTER YOUR PIECE QUERY]>>>");
+        System.out.printf("[ENTER YOUR PIECE MOVE]>>>");
 
         Scanner scanner = new Scanner(System.in);
         char[] input = scanner.nextLine().toCharArray();
@@ -128,6 +122,7 @@ public class GameplayUI {
             ChessPosition chessPosition = convertToChessPosition(input);
             //for each of the valid moves we are going to store the rows and columns
             ChessMove[] chessMoves = game.validMoves(chessPosition).toArray(new ChessMove[0]);
+            board = game.getBoard();
             boolean[][] locations = new boolean[8][8];
             for (ChessMove chessMove : chessMoves) {
                 //we are going to create a list of possible moves
@@ -137,6 +132,7 @@ public class GameplayUI {
                 locations[row-1][col-1] = true;
             }
             legalMoves = locations;
+            setBoard(board);
             boardCreation(color);
             legalMoves = new boolean[8][8];
         }
@@ -146,36 +142,41 @@ public class GameplayUI {
         }
     }
 
-    private static void move(){
+    private static void move() {
         //Here we are going to enter the chess position to get the legal moves
         System.out.print("\u001b[104;1m");
         System.out.print("\u001b[30;1m");
         System.out.println("To see what moves are legal by a piece enter the piece position like this (without the dash, or quotation marks):");
         System.out.print("\u001b[107;1m");
         System.out.print("\u001b[35;1m");
-        System.out.println("'letter-number'");
+        System.out.println("'letter-number' 'letter-number'");
 
         System.out.print("\u001b[49;m");
         System.out.print("\u001b[33;1m");
-        System.out.printf("[ENTER YOUR PIECE QUERY]>>>");
+        System.out.print("[ENTER YOUR PIECE MOVE]>>>");
 
         Scanner scanner = new Scanner(System.in);
-        char[] input = scanner.nextLine().toCharArray();
-        if(input.length == 2){
-            ChessPosition chessPosition = convertToChessPosition(input);
-            //for each of the valid moves we are going to store the rows and columns
-            ChessMove[] chessMoves = game.validMoves(chessPosition).toArray(new ChessMove[0]);
-            boolean[][] locations = new boolean[8][8];
-            for (ChessMove chessMove : chessMoves) {
-                //we are going to create a list of possible moves
-                int row = chessMove.getEndPosition().getRow();
-                int col = chessMove.getEndPosition().getColumn();
+        String line = scanner.nextLine();
+        var loginData = line.split(" ");
 
-                locations[row-1][col-1] = true;
+        char[] startInput = loginData[0].toCharArray();
+        char[] endInput = loginData[1].toCharArray();
+        if(startInput.length == 2 && endInput.length == 2){
+            ChessPosition startPosition = convertToChessPosition(startInput);
+            ChessPosition endPosition = convertToChessPosition(endInput);
+            ChessMove move = new ChessMove(startPosition, endPosition, null);
+            try {
+                game.makeMove(move);
+            } catch (InvalidMoveException e) {
+                System.out.print("\u001b[31;1m");
+                System.out.println("wait, that's illegal");
+            } catch (NullPointerException e) {
+                System.out.print("\u001b[31;1m");
+                System.out.println("um are you sure you inputted the right piece?");
             }
-            legalMoves = locations;
+            board = game.getBoard();
+            setBoard(board);
             boardCreation(color);
-            legalMoves = new boolean[8][8];
         }
         else{
             System.out.print("\u001b[31;1m");
