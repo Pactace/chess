@@ -109,10 +109,7 @@ public class BoardCreation {
     private static void drawRowNumbers(PrintStream out, int boardRow, boolean white){
         out.print(SET_BG_COLOR_BLACK);
         out.print(SET_TEXT_COLOR_GREEN);
-        if(!white)
-            out.print(boardRow);
-        else
-            out.print(abs(boardRow - 9));
+        out.print(boardRow);
     }
     private static void drawRowOfSquares(PrintStream out, int rowNum, boolean white) {
         int startSquare = (!white ? 8 : 1);
