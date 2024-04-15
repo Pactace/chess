@@ -56,9 +56,12 @@ public class ChessGame {
             ChessPiece selectedPiece = board.getPiece(startPosition);
             //cycle through each of the moves
             for(ChessMove move: selectedPiece.pieceMoves(board,startPosition)){
-                teamTurn = selectedPiece.getTeamColor();
                 //first we are going to make a backup board
+                TeamColor initialTeamTurn = teamTurn;
                 ChessBoard backupBoard = deepCopyBoard(board);
+
+                //then we are going to start mucking about the with the modifications
+                teamTurn = selectedPiece.getTeamColor();
 
                 //next we are going to make the move
                 board.addPiece(move.getStartPosition(), null);
@@ -71,6 +74,7 @@ public class ChessGame {
 
                 //then we are going to revert back to the old way
                 board = deepCopyBoard(backupBoard);
+                teamTurn = initialTeamTurn;
             }
 
         }
