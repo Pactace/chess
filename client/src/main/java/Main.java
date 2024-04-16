@@ -1,4 +1,5 @@
 import chess.*;
+import clientTests.ServerFacade;
 import ui.NavigatorUI;
 
 public class Main {

@@ -74,8 +74,21 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    public void updateGame(GameData gameData) {
-        //this doesn't have anything in it yet
+    public void updateGame(GameData gameData) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            if(getGame(gameData.gameID()) == null){
+                throw new DataAccessException("invalid id");
+            }
+
+            try (var preparedStatement = conn.prepareStatement(
+                    "UPDATE game SET whiteUsername=?, blackUsername=? WHERE gameId=?")) {
+                    preparedStatement.setString(1, gameData.whiteUsername());
+                    preparedStatement.setInt(2, gameData.gameID());
+                    preparedStatement.executeUpdate();}
+
+        } catch (SQLException | DataAccessException e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     public Collection<GameData> listGames() throws DataAccessException {

@@ -115,12 +115,7 @@ public class Service {
         //here we create the Data in the game DAO and return the gameID
         return gameDAO.listGames();
     }
-    public void joinPlayer(String username){}
-    public void joinObserver(){}
-    public void makeMove(){}
-    public void leaveGame(){}
-    public void resignGame(){
-    }
+
     public void clear() throws DataAccessException {
         userDAO.clear();
         authDAO.clear();

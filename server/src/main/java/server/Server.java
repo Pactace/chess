@@ -42,7 +42,7 @@ public class Server {
         webSocketHandler = new WebSocketHandler(userDAO, authDAO, gameDAO);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DataAccessException {
         new Server().run(8080);
     }
 
