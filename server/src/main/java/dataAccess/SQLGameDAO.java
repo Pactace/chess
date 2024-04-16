@@ -74,7 +74,7 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    public void updateGame(GameData gameData) throws DataAccessException {
+    public GameData updateGame(GameData gameData) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             if(getGame(gameData.gameID()) == null){
                 throw new DataAccessException("invalid id");
@@ -91,6 +91,7 @@ public class SQLGameDAO implements GameDAO {
         } catch (SQLException | DataAccessException e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
+        return gameData;
     }
 
     public Collection<GameData> listGames() throws DataAccessException {

@@ -45,8 +45,9 @@ public class MemoryGameDAO implements GameDAO {
         updateGame(updatedGame);
     }
 
-    public void updateGame(GameData gameData){
+    public GameData updateGame(GameData gameData){
         games.replace(gameData.gameID(), gameData);
+        return gameData;
     }
 
     public Collection<GameData> listGames() {
