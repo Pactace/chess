@@ -141,39 +141,46 @@ public class WebSocketHandler {
         AuthData authData = authDAO.getAuthData(makeMoveRequest.getAuthString());
         GameData gameData = gameDAO.getGame(makeMoveRequest.getGameID());
 
+        //make sure the game isn't over
+
         //make sure the gameID and the authToken and correct
         if((authData.username() != null) || (gameDAO.getGame(makeMoveRequest.getGameID()) != null)){
             //here we make sure only the person who's turn it is playing and that they are touching the right piece
             ChessGame game = gameData.game();
-            if((game.getTeamTurn() == ChessGame.TeamColor.WHITE && authData.username() == gameData.whiteUsername() &&
-                    game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE) || (
-                    game.getTeamTurn() == ChessGame.TeamColor.BLACK && authData.username() == gameData.blackUsername() &&
-                    game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK)) {
-                //make sure the move is in valid moves
-                if(game.validMoves(makeMoveRequest.getMove().getStartPosition()).contains(makeMoveRequest.getMove())){
-                    //make ze move
-                    gameData.game().makeMove(makeMoveRequest.getMove());
-                    //upzate ze game
-                    gameDAO.updateGame(gameData);
+            if(!gameDAO.getGame(makeMoveRequest.getGameID()).game().isGameOver()) {
+                if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && authData.username() == gameData.whiteUsername() &&
+                        game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE) || (
+                        game.getTeamTurn() == ChessGame.TeamColor.BLACK && authData.username() == gameData.blackUsername() &&
+                                game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK)) {
+                    //make sure the move is in valid moves
+                    if (game.validMoves(makeMoveRequest.getMove().getStartPosition()).contains(makeMoveRequest.getMove())) {
+                        //make ze move
+                        gameData.game().makeMove(makeMoveRequest.getMove());
+                        //upzate ze game
+                        gameDAO.updateGame(gameData);
 
-                    //here we are going to do the stuff for the root user
-                    gameData = gameDAO.getGame(makeMoveRequest.getGameID());
-                    var loadGame = new LoadGame(gameData.game());
-                    session.getRemote().sendString(new Gson().toJson(loadGame));
-                    var messageToOtherClients = new Gson().toJson(loadGame);
-                    sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
+                        //here we are going to do the stuff for the root user
+                        gameData = gameDAO.getGame(makeMoveRequest.getGameID());
+                        var loadGame = new LoadGame(gameData.game());
+                        session.getRemote().sendString(new Gson().toJson(loadGame));
+                        var messageToOtherClients = new Gson().toJson(loadGame);
+                        sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
 
-                    //here we are broadcasting it to everyone else
-                    var notificationMessage = String.format("%s %s was played", makeMoveRequest.getMove().getStartPosition(), makeMoveRequest.getMove().getStartPosition());
-                    var notification = new Notification(notificationMessage);
-                    messageToOtherClients = new Gson().toJson(notification);
-                    sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
+                        //here we are broadcasting it to everyone else
+                        var notificationMessage = String.format("%s %s was played", makeMoveRequest.getMove().getStartPosition(), makeMoveRequest.getMove().getStartPosition());
+                        var notification = new Notification(notificationMessage);
+                        messageToOtherClients = new Gson().toJson(notification);
+                        sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
+                    } else {
+                        var error = new Error("move is trash brother");
+                        session.getRemote().sendString(new Gson().toJson(error));
+                    }
                 } else {
-                    var error = new Error("move is trash brother");
+                    var error = new Error("why you trynna move someone else's piece");
                     session.getRemote().sendString(new Gson().toJson(error));
                 }
             } else {
-                var error = new Error("why you trynna move someone else's piece");
+                var error = new Error("sorry mate the games already been resigned/over");
                 session.getRemote().sendString(new Gson().toJson(error));
             }
         }
@@ -181,15 +188,35 @@ public class WebSocketHandler {
     private void resign(String message, Session session) throws Exception {
         Resign resignRequest = new Gson().fromJson(message, Resign.class);
         AuthData authData = authDAO.getAuthData(resignRequest.getAuthString());
+        GameData gameData = gameDAO.getGame(resignRequest.getGameID());
         //make sure the gameID and the authToken and correct
         if((authData.username() != null) || (gameDAO.getGame(resignRequest.getGameID()) != null)){
+            //here we are going to make sure the game isn't already over
+            if(authData.username() == gameData.whiteUsername() || authData.username() == gameData.blackUsername()){
+                //make sure that no one can resign after gameOver has been set to true
+                if(!gameDAO.getGame(resignRequest.getGameID()).game().isGameOver()){
+                    //set to over
+                    gameData.game().setGameOver(true);
+                    //upzate ze game
+                    gameDAO.updateGame(gameData);
 
-            //here we are broadcasting it to everyone else
-            var notificationMessage = String.format("%s has resigned: the game has ended", authData.username());
-            var notification = new Notification(notificationMessage);
-            session.getRemote().sendString(new Gson().toJson(notification));
-            var messageToOtherClients = new Gson().toJson(notification);
-            sessionsManager.sendToOtherClients(resignRequest.getGameID(), resignRequest.getAuthString(), messageToOtherClients);
+                    //here we are broadcasting it to everyone
+                    var notificationMessage = String.format("%s has resigned: the game has ended", authData.username());
+                    var notification = new Notification(notificationMessage);
+                    session.getRemote().sendString(new Gson().toJson(notification));
+                    var messageToOtherClients = new Gson().toJson(notification);
+                    sessionsManager.sendToOtherClients(resignRequest.getGameID(), resignRequest.getAuthString(), messageToOtherClients);
+                }
+                else {
+                    var error = new Error("sorry mate the games already been resigned/over");
+                    session.getRemote().sendString(new Gson().toJson(error));
+                }
+            } else {
+                var error = new Error("You cant resign your an observer");
+                session.getRemote().sendString(new Gson().toJson(error));
+            }
+            //I would be turning the is gameOver to true
+            //observer cant resign.
         }
     }
 
