@@ -35,10 +35,10 @@ public class WebSocketHandler {
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER -> joinPlayer(message, session);
-            case JOIN_OBSERVER -> joinObserver(userGameCommand.getAuthString(), session);
-            case LEAVE -> leave(userGameCommand.getAuthString(), session);
-            case MAKE_MOVE -> makeMove(userGameCommand.getAuthString(), session);
-            case RESIGN -> resign(userGameCommand.getAuthString(), session);
+            case JOIN_OBSERVER -> joinObserver(message, session);
+            case LEAVE -> leave(message, session);
+            case MAKE_MOVE -> makeMove(message, session);
+            case RESIGN -> resign(message, session);
         }
     }
 
@@ -104,14 +104,14 @@ public class WebSocketHandler {
         //make sure the gameID and the authToken and correct
         if((authData.username() != null) || (gameDAO.getGame(makeMoveRequest.getGameID()) != null)){
             //get ze game
-            //GameData game = gameDAO.getGame(makeMoveRequest.getGameID());
+            GameData gameData = gameDAO.getGame(makeMoveRequest.getGameID());
             //make ze move
-            //game.makeMove(makeMoveRequest.getMove());
+            gameData.game().makeMove(makeMoveRequest.getMove());
             //upzate ze game
-            //gameDAO.updateGame()
+            gameDAO.updateGame(gameData);
 
             //here we are going to do the stuff for the root user
-            GameData gameData = gameDAO.getGame(makeMoveRequest.getGameID());
+            gameData = gameDAO.getGame(makeMoveRequest.getGameID());
             var loadGame = new LoadGame(gameData.game());
             session.getRemote().sendString(new Gson().toJson(loadGame));
             var messageToOtherClients = new Gson().toJson(loadGame);

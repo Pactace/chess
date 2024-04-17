@@ -45,8 +45,6 @@ public class GameplayUI implements GameHandler {
         } catch (ResponseException e) {
             throw new RuntimeException(e);
         }
-        setBoard(board);
-        boardCreation(color);
         commandPrompt(args);
     }
 
@@ -111,7 +109,7 @@ public class GameplayUI implements GameHandler {
         System.out.println("'leave' - this will end your session with us and send you back to the post-login page");
     }
 
-    private static void legal(){
+    private void legal(){
         //Here we are going to enter the chess position to get the legal moves
         System.out.print("\u001b[104;1m");
         System.out.print("\u001b[30;1m");
@@ -150,7 +148,7 @@ public class GameplayUI implements GameHandler {
         }
     }
 
-    private static void move() {
+    private void move() {
         //Here we are going to enter the chess position to get the legal moves
         System.out.print("\u001b[104;1m");
         System.out.print("\u001b[30;1m");
@@ -175,6 +173,12 @@ public class GameplayUI implements GameHandler {
             ChessMove move = new ChessMove(startPosition, endPosition, null);
             try {
                 game.makeMove(move);
+                try{
+                    webSocketFacade.makeMove(authToken, gameID, move);
+                }
+                catch (ResponseException e) {
+                    System.out.print("\u001b[31;1m"); System.out.println("we got a problem");
+                }
             } catch (InvalidMoveException e) {
                 System.out.print("\u001b[31;1m");
                 System.out.println("wait, that's illegal");
@@ -182,9 +186,6 @@ public class GameplayUI implements GameHandler {
                 System.out.print("\u001b[31;1m");
                 System.out.println("um are you sure you inputted the right piece?");
             }
-            board = game.getBoard();
-            setBoard(board);
-            boardCreation(color);
         }
         else{
             System.out.print("\u001b[31;1m");
@@ -232,5 +233,7 @@ public class GameplayUI implements GameHandler {
     public void loadGame(LoadGame serverMessage) {
         game = serverMessage.getGame();
         board = game.getBoard();
+        setBoard(board);
+        boardCreation(color);
     }
 }
