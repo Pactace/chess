@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
 import dataAccess.Interfaces.AuthDAO;
 import dataAccess.Interfaces.GameDAO;
 import dataAccess.Interfaces.UserDAO;
@@ -14,6 +15,7 @@ import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.*;
 
+import java.io.IOException;
 import java.util.Objects;
 
 @WebSocket
@@ -140,8 +142,6 @@ public class WebSocketHandler {
         AuthData authData = authDAO.getAuthData(makeMoveRequest.getAuthString());
         GameData gameData = gameDAO.getGame(makeMoveRequest.getGameID());
 
-        //make sure the game isn't over
-
         //make sure the gameID and the authToken and correct
         if((authData.username() != null) || (gameDAO.getGame(makeMoveRequest.getGameID()) != null)){
             //here we make sure only the person who's turn it is playing and that they are touching the right piece
@@ -152,7 +152,6 @@ public class WebSocketHandler {
                         game.getTeamTurn() == ChessGame.TeamColor.BLACK && authData.username().equals(gameData.blackUsername()) &&
                                 game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK)) {
                     //make sure the move is in valid moves
-                    System.out.println("ENTERED THE IF");
                     if (game.validMoves(makeMoveRequest.getMove().getStartPosition()).contains(makeMoveRequest.getMove())) {
                         //make ze move
                         gameData.game().makeMove(makeMoveRequest.getMove());
@@ -171,6 +170,19 @@ public class WebSocketHandler {
                         var notification = new Notification(notificationMessage);
                         messageToOtherClients = new Gson().toJson(notification);
                         sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
+
+                        if(gameData.game().isInCheckmate(gameData.game().getTeamTurn())){
+                            notificationMessage = String.format("CHECKMATE!!! THE GAME IS OVER");
+                            sendMessageToEveryone(session, makeMoveRequest, gameData, loadGame, notificationMessage, true);
+                        }
+                        else if(gameData.game().isInCheck(gameData.game().getTeamTurn())){
+                            notificationMessage = String.format("CHECK!!!");
+                            sendMessageToEveryone(session, makeMoveRequest, gameData, loadGame, notificationMessage, false);
+                        }
+                        else if(gameData.game().isInStalemate(gameData.game().getTeamTurn())){
+                            notificationMessage = String.format("STALEMATE!!! THE GAME IS OVER");
+                            sendMessageToEveryone(session, makeMoveRequest, gameData, loadGame, notificationMessage, true);
+                        }
                     } else {
                         var error = new Error("move is trash brother");
                         session.getRemote().sendString(new Gson().toJson(error));
@@ -180,11 +192,23 @@ public class WebSocketHandler {
                     session.getRemote().sendString(new Gson().toJson(error));
                 }
             } else {
-                var error = new Error("sorry mate the games already been resigned/over");
+                var error = new Error("sorry mate the games already over");
                 session.getRemote().sendString(new Gson().toJson(error));
             }
         }
     }
+
+    private void sendMessageToEveryone(Session session, MakeMove makeMoveRequest, GameData gameData, LoadGame loadGame, String notificationMessage, boolean gameOver) throws DataAccessException, IOException {
+        Notification notification;
+        String messageToOtherClients;
+        gameData.game().setGameOver(gameOver);
+        gameDAO.updateGame(gameData);
+        notification = new Notification(notificationMessage);
+        session.getRemote().sendString(new Gson().toJson(notification));
+        messageToOtherClients = new Gson().toJson(loadGame);
+        sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
+    }
+
     private void resign(String message, Session session) throws Exception {
         Resign resignRequest = new Gson().fromJson(message, Resign.class);
         AuthData authData = authDAO.getAuthData(resignRequest.getAuthString());
@@ -215,8 +239,6 @@ public class WebSocketHandler {
                 var error = new Error("You cant resign your an observer");
                 session.getRemote().sendString(new Gson().toJson(error));
             }
-            //I would be turning the is gameOver to true
-            //observer cant resign.
         }
     }
 

@@ -248,7 +248,8 @@ public class GameplayUI implements GameHandler {
 
     @Override
     public void error(Error serverMessage) {
-
+        System.out.print("\u001b[31;1m");
+        System.out.println("ERROR: " + serverMessage.getMessage());
     }
 
     @Override
