@@ -4,11 +4,9 @@ import chess.ChessMove;
 
 public class Leave extends UserGameCommand{
     private Integer gameID;
-    private UserGameCommand.CommandType commandType;
 
     public Leave(String authToken, Integer gameID) {
-        super(authToken);
-        commandType = CommandType.LEAVE;
+        super(authToken, CommandType.LEAVE);
         this.gameID = gameID;
     }
 

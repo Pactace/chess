@@ -3,41 +3,47 @@ package ui;
 import chess.*;
 import clientTests.ServerFacade;
 import model.GameData;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
+import websocket.GameHandler;
+import websocket.ResponseException;
+import websocket.WebSocketFacade;
 
 import java.util.Scanner;
 
 import static ui.BoardCreation.*;
 
-public class GameplayUI {
+public class GameplayUI implements GameHandler {
     private final NavigatorUI navigator;
-    private final ServerFacade serverFacade;
+    private final WebSocketFacade webSocketFacade;
     private final int gameID;
     private final String username;
     private final String authToken;
-    private static String color;
-    private static ChessBoard board;
-    private static ChessGame game;
+    private static ChessGame.TeamColor teamColor = null;
+    private static String color = "";
+    public static ChessBoard board;
+    public static ChessGame game;
 
 
-    GameplayUI(NavigatorUI navigator, ServerFacade serverFacade, int gameID, String username, String authToken, String color){
+    GameplayUI(NavigatorUI navigator, int gameID, String username, String authToken, String color) throws Exception {
+        webSocketFacade = new WebSocketFacade(this);
         this.navigator = navigator;
-        this.serverFacade = serverFacade;
         this.gameID = gameID;
         this.username = username;
         this.authToken = authToken;
         this.color = color;
+        if(color.equalsIgnoreCase("WHITE"))
+            teamColor = ChessGame.TeamColor.WHITE;
+        else if(color.equalsIgnoreCase("BLACK"))
+            teamColor = ChessGame.TeamColor.BLACK;
     }
     public void main(String[] args) throws Exception {
         System.out.print("\u001b[36;1m");
         System.out.println("♕ Welcome to the game chosen one your trial starts now: Type 'help' to get started");
-        GameData[] games = serverFacade.listGames();
-        game = games[gameID - 1].game();
-        if(game == null){
-            game = new ChessGame();
-            game.setBoard(new ChessBoard());
-            board = game.getBoard();
-            board.resetBoard();
-            game.setTeamTurn(ChessGame.TeamColor.WHITE);
+        try {
+            webSocketFacade.joinPlayer(authToken,gameID,teamColor);
+        } catch (ResponseException e) {
+            throw new RuntimeException(e);
         }
         setBoard(board);
         boardCreation(color);
@@ -212,4 +218,19 @@ public class GameplayUI {
     }
 
 
+    @Override
+    public void notify(Notification serverMessage) {
+
+    }
+
+    @Override
+    public void error(Error serverMessage) {
+
+    }
+
+    @Override
+    public void loadGame(LoadGame serverMessage) {
+        game = serverMessage.getGame();
+        board = game.getBoard();
+    }
 }

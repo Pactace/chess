@@ -2,11 +2,9 @@ package webSocketMessages.userCommands;
 
 public class JoinObserver extends UserGameCommand{
     private Integer gameID;
-    private UserGameCommand.CommandType commandType;
 
     public JoinObserver(String authToken, Integer gameID) {
-        super(authToken);
-        commandType = CommandType.JOIN_OBSERVER;
+        super(authToken, CommandType.JOIN_OBSERVER);
         this.gameID = gameID;
     }
 

@@ -1,6 +1,7 @@
 package ui;
 
 import clientTests.ServerFacade;
+import websocket.WebSocketFacade;
 
 public class NavigatorUI {
     //here we are going to put the serverFacade we will be using just so all the authTokens are consistent
@@ -15,7 +16,7 @@ public class NavigatorUI {
         postLoginUI.main(args);
     }
     public void transferToGamePlayUI(String[] args, int gameID, String username, String authToken, String color) throws Exception {
-        GameplayUI GameplayUI = new GameplayUI(this, serverFacade, gameID, username, authToken, color);
-        GameplayUI.main(args);
+        GameplayUI gameplayUI = new GameplayUI(this, gameID, username, authToken, color);
+        gameplayUI.main(args);
     }
 }

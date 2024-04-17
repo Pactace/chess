@@ -1,5 +1,6 @@
 package dataAccess;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.Interfaces.GameDAO;
@@ -43,7 +44,12 @@ public class SQLGameDAO implements GameDAO {
             throw new DataAccessException("cannot insert null as game name");
         }
         var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        //initializedBoard
+        ChessBoard newBoard = new ChessBoard();
+        newBoard.resetBoard();
         ChessGame newChessGame = new ChessGame();
+        newChessGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+        newChessGame.setBoard(newBoard);
         var json = new Gson().toJson(newChessGame);
         var id = executeUpdate(statement, null, null, gameName, json);
         return new GameData(id, null,null, gameName, newChessGame);

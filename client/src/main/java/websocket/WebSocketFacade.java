@@ -3,24 +3,31 @@ package websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import ui.GameplayUI;
+import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
 
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 
-public class WebSocketFacade extends Endpoint implements MessageHandler {
+public class WebSocketFacade extends Endpoint {
 
     public Session session;
-    public GameHandler gameHandler;
-    public WebSocketFacade() throws Exception {
+    public WebSocketFacade(GameHandler gameHandler) throws Exception {
         URI uri = new URI("ws://localhost:8080/connect");
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         this.session = container.connectToServer(this, uri);
-
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            @Override
             public void onMessage(String message) {
-                System.out.println(message);
+                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                switch (serverMessage.getServerMessageType()) {
+                    //case NOTIFICATION -> ;
+                    case LOAD_GAME -> gameHandler.loadGame(new Gson().fromJson(message, LoadGame.class));
+                    //case ERROR -> leave(userGameCommand.getAuthString(), session);
+                }
             }
         });
     }
