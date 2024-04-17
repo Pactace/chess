@@ -36,7 +36,7 @@ public class WebSocketHandler {
         switch (userGameCommand.getCommandType()) {
             case JOIN_PLAYER -> joinPlayer(message, session);
             case JOIN_OBSERVER -> joinObserver(message, session);
-            case LEAVE -> leave(message, session);
+            case LEAVE -> leave(message);
             case MAKE_MOVE -> makeMove(message, session);
             case RESIGN -> resign(message, session);
         }
@@ -84,12 +84,13 @@ public class WebSocketHandler {
             sessionsManager.sendToOtherClients(joinObserverRequest.getGameID(), joinObserverRequest.getAuthString(), messageToOtherClients);
         }
     }
-    private void leave(String message, Session session) throws Exception {
+    private void leave(String message) throws Exception {
         Leave leaveRequest = new Gson().fromJson(message, Leave.class);
         AuthData authData = authDAO.getAuthData(leaveRequest.getAuthString());
         //make sure the gameID and the authToken and correct
         if((authData.username() != null) || (gameDAO.getGame(leaveRequest.getGameID()) != null)){
             sessionsManager.removeSessionFromGame(leaveRequest.getGameID(), leaveRequest.getAuthString());
+            //here we are going to update the database
 
             //here we are broadcasting it to everyone else
             var notificationMessage = String.format("%s left the game", authData.username());

@@ -40,10 +40,19 @@ public class GameplayUI implements GameHandler {
     public void main(String[] args) throws Exception {
         System.out.print("\u001b[36;1m");
         System.out.println("♕ Welcome to the game chosen one your trial starts now: Type 'help' to get started");
-        try {
-            webSocketFacade.joinPlayer(authToken,gameID,teamColor);
-        } catch (ResponseException e) {
-            throw new RuntimeException(e);
+        if(teamColor != null){
+            try {
+                webSocketFacade.joinPlayer(authToken,gameID,teamColor);
+            } catch (ResponseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else{
+            try {
+                webSocketFacade.joinObserver(authToken,gameID);
+            } catch (ResponseException e) {
+                throw new RuntimeException(e);
+            }
         }
         commandPrompt(args);
     }
@@ -53,7 +62,7 @@ public class GameplayUI implements GameHandler {
         while (true) {
             System.out.print("\u001b[49;m");
             System.out.print("\u001b[32;1m");
-            System.out.printf("[IN GAME]>>>");
+            System.out.println("[IN GAME]>>>");
             Scanner scanner = new Scanner(System.in);
             String command = scanner.nextLine();
 
@@ -76,15 +85,26 @@ public class GameplayUI implements GameHandler {
         else if(command.equalsIgnoreCase("legal")){
             legal();
         }
-        else if(command.equalsIgnoreCase("move")){
-            move();
+        else if(command.equalsIgnoreCase("move")) {
+            if (game.getTeamTurn() == teamColor) {
+                move();
+            }
+            else{
+                System.out.print("\u001b[31;1m");
+                System.out.println("You can only move on your turn >:C");
+            }
         }
         else if(command.equalsIgnoreCase("resign")){
 
         }
         else if(command.equalsIgnoreCase("leave")) {
             //here all we need to do is take the user out
-            navigator.transferToPostLoginUI(args, username, authToken);
+            try {
+                webSocketFacade.leave(authToken, gameID);
+                navigator.transferToPostLoginUI(args, username, authToken);
+            } catch (ResponseException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -221,7 +241,9 @@ public class GameplayUI implements GameHandler {
 
     @Override
     public void notify(Notification serverMessage) {
-
+        System.out.print("\u001b[107;1m");
+        System.out.print("\u001b[34;1m");
+        System.out.println(serverMessage.getMessage());
     }
 
     @Override

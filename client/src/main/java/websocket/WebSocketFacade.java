@@ -5,6 +5,7 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 import ui.GameplayUI;
 import webSocketMessages.serverMessages.LoadGame;
+import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.*;
 
@@ -24,7 +25,7 @@ public class WebSocketFacade extends Endpoint {
             public void onMessage(String message) {
                 ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                 switch (serverMessage.getServerMessageType()) {
-                    //case NOTIFICATION -> ;
+                    case NOTIFICATION -> gameHandler.notify(new Gson().fromJson(message, Notification.class));
                     case LOAD_GAME -> gameHandler.loadGame(new Gson().fromJson(message, LoadGame.class));
                     //case ERROR -> leave(userGameCommand.getAuthString(), session);
                 }
