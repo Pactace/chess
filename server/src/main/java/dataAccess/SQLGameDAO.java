@@ -142,7 +142,7 @@ public class SQLGameDAO implements GameDAO {
             whiteUsername VARCHAR(255),
             blackUsername VARCHAR(255),
             gameName VARCHAR(255),
-            game VARCHAR(255),
+            game TEXT,
             PRIMARY KEY (gameId)
             )""";
 
