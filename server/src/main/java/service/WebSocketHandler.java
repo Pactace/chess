@@ -87,7 +87,7 @@ public class WebSocketHandler {
 
         try {
             //make sure the gameID and the authToken and correct
-            if ((authData.username() != null) || (gameDAO.getGame(joinObserverRequest.getGameID()) != null)) {
+            if ((authData.username() != null) && (gameDAO.getGame(joinObserverRequest.getGameID()) != null)) {
                 sessionsManager.addSessionToGame(joinObserverRequest.getGameID(), joinObserverRequest.getAuthString(), session);
                 //here we are going to do the stuff for the root user
                 GameData gameData = gameDAO.getGame(joinObserverRequest.getGameID());
@@ -99,9 +99,8 @@ public class WebSocketHandler {
                 var notification = new Notification(notificationMessage);
                 var messageToOtherClients = new Gson().toJson(notification);
                 sessionsManager.sendToOtherClients(joinObserverRequest.getGameID(), joinObserverRequest.getAuthString(), messageToOtherClients);
-            }
-            else{
-                var error = new Error("either the game doesnt exist or you dont");
+            } else {
+                var error = new Error("something is with your auth or gameId");
                 session.getRemote().sendString(new Gson().toJson(error));
             }
         } catch (Exception e){
@@ -148,11 +147,12 @@ public class WebSocketHandler {
             //here we make sure only the person who's turn it is playing and that they are touching the right piece
             ChessGame game = gameData.game();
             if(!gameDAO.getGame(makeMoveRequest.getGameID()).game().isGameOver()) {
-                if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && authData.username() == gameData.whiteUsername() &&
+                if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && authData.username().equals(gameData.whiteUsername())  &&
                         game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE) || (
-                        game.getTeamTurn() == ChessGame.TeamColor.BLACK && authData.username() == gameData.blackUsername() &&
+                        game.getTeamTurn() == ChessGame.TeamColor.BLACK && authData.username().equals(gameData.blackUsername()) &&
                                 game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK)) {
                     //make sure the move is in valid moves
+                    System.out.println("ENTERED THE IF");
                     if (game.validMoves(makeMoveRequest.getMove().getStartPosition()).contains(makeMoveRequest.getMove())) {
                         //make ze move
                         gameData.game().makeMove(makeMoveRequest.getMove());
@@ -192,7 +192,7 @@ public class WebSocketHandler {
         //make sure the gameID and the authToken and correct
         if((authData.username() != null) || (gameDAO.getGame(resignRequest.getGameID()) != null)){
             //here we are going to make sure the game isn't already over
-            if(authData.username() == gameData.whiteUsername() || authData.username() == gameData.blackUsername()){
+            if(authData.username().equals(gameData.whiteUsername() )|| authData.username().equals(gameData.blackUsername())){
                 //make sure that no one can resign after gameOver has been set to true
                 if(!gameDAO.getGame(resignRequest.getGameID()).game().isGameOver()){
                     //set to over

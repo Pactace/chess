@@ -30,12 +30,15 @@ public class SessionsManager {
         return sessionMap.get(gameID);
     }
     public void sendToOtherClients(int gameID, String authToken, String message) throws IOException {
-        Set<String> keys = getSessionsForGame(gameID).keySet();
+        System.out.println(authToken + "THIS IS THE AUTHTOKEN");
         Map<String, Session> sessionsForGame = getSessionsForGame(gameID);
-        for(String key : keys){
+        for(String key : sessionsForGame.keySet()){
             if(!key.equals(authToken)){
-                Session otherClientSession = sessionsForGame.get(key);
-                otherClientSession.getRemote().sendString(message);
+                if(sessionsForGame.get(key).isOpen()){
+                    System.out.println(key);
+                    Session otherClientSession = sessionsForGame.get(key);
+                    otherClientSession.getRemote().sendString(message);
+                }
             }
         }
     }
