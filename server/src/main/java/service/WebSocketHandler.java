@@ -91,6 +91,18 @@ public class WebSocketHandler {
         if((authData.username() != null) || (gameDAO.getGame(leaveRequest.getGameID()) != null)){
             sessionsManager.removeSessionFromGame(leaveRequest.getGameID(), leaveRequest.getAuthString());
             //here we are going to update the database
+            //get ze game
+            GameData gameData = gameDAO.getGame(leaveRequest.getGameID());
+            //kill ze player based on color because we are razist
+            GameData newGameData = gameData;
+            if(Objects.equals(authData.username(), gameData.whiteUsername())){
+                 newGameData = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+            }
+            else if(Objects.equals(authData.username(), gameData.blackUsername())){
+                newGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+            }
+            //upzate ze game
+            gameDAO.updateGame(newGameData);
 
             //here we are broadcasting it to everyone else
             var notificationMessage = String.format("%s left the game", authData.username());
