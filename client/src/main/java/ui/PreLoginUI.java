@@ -128,9 +128,9 @@ public class PreLoginUI {
             if(loginData.length == 3){
                 UserData newUser = new UserData(loginData[0], loginData[1], loginData[2]);
                 try{
-                    //here we are going to register and store the username for future use
-                    loggedInUsername = serverFacade.register(newUser).username();
-
+                    AuthData authData = serverFacade.login(newUser);
+                    loggedInUsername = authData.username();
+                    authToken = authData.authToken();
                     return true;
                 }
                 catch(Exception e){

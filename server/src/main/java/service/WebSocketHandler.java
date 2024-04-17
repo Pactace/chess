@@ -9,6 +9,7 @@ import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.Session;
+import webSocketMessages.serverMessages.Error;
 import webSocketMessages.serverMessages.LoadGame;
 import webSocketMessages.serverMessages.Notification;
 import webSocketMessages.userCommands.*;
@@ -46,42 +47,66 @@ public class WebSocketHandler {
     private void joinPlayer(String message, Session session) throws Exception {
         JoinPlayer joinPlayerRequest = new Gson().fromJson(message, JoinPlayer.class);
         AuthData authData = authDAO.getAuthData(joinPlayerRequest.getAuthString());
-        //make sure the gameID and the authToken and correct
-        if((authData.username() != null) || (gameDAO.getGame(joinPlayerRequest.getGameID()) != null)){
-            //if the move is made by the person who joined
-            if((joinPlayerRequest.getPlayerColor() == ChessGame.TeamColor.WHITE && Objects.equals(gameDAO.getGame(joinPlayerRequest.getGameID()).whiteUsername(), authData.username())) ||
-            (joinPlayerRequest.getPlayerColor() == ChessGame.TeamColor.BLACK && Objects.equals(gameDAO.getGame(joinPlayerRequest.getGameID()).blackUsername(), authData.username()))){
-                sessionsManager.addSessionToGame(joinPlayerRequest.getGameID(), joinPlayerRequest.getAuthString(), session);
 
-                //here we are going to do the stuff for the root user
-                GameData gameData = gameDAO.getGame(joinPlayerRequest.getGameID());
-                var loadGame = new LoadGame(gameData.game());
-                session.getRemote().sendString(new Gson().toJson(loadGame));
+        try{
+            //make sure the gameID and the authToken and correct
+            if((authData.username() != null) || (gameDAO.getGame(joinPlayerRequest.getGameID()) != null)){
+                //if the move is made by the person who joined
+                if((joinPlayerRequest.getPlayerColor() == ChessGame.TeamColor.WHITE && Objects.equals(gameDAO.getGame(joinPlayerRequest.getGameID()).whiteUsername(), authData.username())) ||
+                        (joinPlayerRequest.getPlayerColor() == ChessGame.TeamColor.BLACK && Objects.equals(gameDAO.getGame(joinPlayerRequest.getGameID()).blackUsername(), authData.username()))){
+                    sessionsManager.addSessionToGame(joinPlayerRequest.getGameID(), joinPlayerRequest.getAuthString(), session);
 
-                //here we are broadcasting it to everyone else
-                var notificationMessage = String.format("%s is in the game as a player", authData.username());
-                var notification = new Notification(notificationMessage);
-                var messageToOtherClients = new Gson().toJson(notification);
-                sessionsManager.sendToOtherClients(joinPlayerRequest.getGameID(), joinPlayerRequest.getAuthString(), messageToOtherClients);
+                    //here we are going to do the stuff for the root user
+                    GameData gameData = gameDAO.getGame(joinPlayerRequest.getGameID());
+                    var loadGame = new LoadGame(gameData.game());
+                    session.getRemote().sendString(new Gson().toJson(loadGame));
+
+                    //here we are broadcasting it to everyone else
+                    var notificationMessage = String.format("%s is in the game as a player", authData.username());
+                    var notification = new Notification(notificationMessage);
+                    var messageToOtherClients = new Gson().toJson(notification);
+                    sessionsManager.sendToOtherClients(joinPlayerRequest.getGameID(), joinPlayerRequest.getAuthString(), messageToOtherClients);
+                }
+                else{
+                    var error = new Error("lowkey don't know how you got here");
+                    session.getRemote().sendString(new Gson().toJson(error));
+                }
             }
+            else{
+                var error = new Error("either the game doesnt exist or you dont");
+                session.getRemote().sendString(new Gson().toJson(error));
+            }
+        }catch (Exception e){
+            var error = new Error("something is funky with your auth or gameId");
+            session.getRemote().sendString(new Gson().toJson(error));
         }
     }
     private void joinObserver(String message, Session session) throws Exception {
         JoinObserver joinObserverRequest = new Gson().fromJson(message, JoinObserver.class);
         AuthData authData = authDAO.getAuthData(joinObserverRequest.getAuthString());
-        //make sure the gameID and the authToken and correct
-        if((authData.username() != null) || (gameDAO.getGame(joinObserverRequest.getGameID()) != null)){
-            sessionsManager.addSessionToGame(joinObserverRequest.getGameID(), joinObserverRequest.getAuthString(), session);
-            //here we are going to do the stuff for the root user
-            GameData gameData = gameDAO.getGame(joinObserverRequest.getGameID());
-            var loadGame = new LoadGame(gameData.game());
-            session.getRemote().sendString(new Gson().toJson(loadGame));
 
-            //here we are broadcasting it to everyone else
-            var notificationMessage = String.format("%s is in the game as an observer", authData.username());
-            var notification = new Notification(notificationMessage);
-            var messageToOtherClients = new Gson().toJson(notification);
-            sessionsManager.sendToOtherClients(joinObserverRequest.getGameID(), joinObserverRequest.getAuthString(), messageToOtherClients);
+        try {
+            //make sure the gameID and the authToken and correct
+            if ((authData.username() != null) || (gameDAO.getGame(joinObserverRequest.getGameID()) != null)) {
+                sessionsManager.addSessionToGame(joinObserverRequest.getGameID(), joinObserverRequest.getAuthString(), session);
+                //here we are going to do the stuff for the root user
+                GameData gameData = gameDAO.getGame(joinObserverRequest.getGameID());
+                var loadGame = new LoadGame(gameData.game());
+                session.getRemote().sendString(new Gson().toJson(loadGame));
+
+                //here we are broadcasting it to everyone else
+                var notificationMessage = String.format("%s is in the game as an observer", authData.username());
+                var notification = new Notification(notificationMessage);
+                var messageToOtherClients = new Gson().toJson(notification);
+                sessionsManager.sendToOtherClients(joinObserverRequest.getGameID(), joinObserverRequest.getAuthString(), messageToOtherClients);
+            }
+            else{
+                var error = new Error("either the game doesnt exist or you dont");
+                session.getRemote().sendString(new Gson().toJson(error));
+            }
+        } catch (Exception e){
+            var error = new Error("something is funky with your auth or gameId");
+            session.getRemote().sendString(new Gson().toJson(error));
         }
     }
     private void leave(String message) throws Exception {
@@ -114,27 +139,43 @@ public class WebSocketHandler {
     private void makeMove(String message, Session session) throws Exception {
         MakeMove makeMoveRequest = new Gson().fromJson(message, MakeMove.class);
         AuthData authData = authDAO.getAuthData(makeMoveRequest.getAuthString());
+        GameData gameData = gameDAO.getGame(makeMoveRequest.getGameID());
+
         //make sure the gameID and the authToken and correct
         if((authData.username() != null) || (gameDAO.getGame(makeMoveRequest.getGameID()) != null)){
-            //get ze game
-            GameData gameData = gameDAO.getGame(makeMoveRequest.getGameID());
-            //make ze move
-            gameData.game().makeMove(makeMoveRequest.getMove());
-            //upzate ze game
-            gameDAO.updateGame(gameData);
+            //here we make sure only the person who's turn it is playing and that they are touching the right piece
+            ChessGame game = gameData.game();
+            if((game.getTeamTurn() == ChessGame.TeamColor.WHITE && authData.username() == gameData.whiteUsername() &&
+                    game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE) || (
+                    game.getTeamTurn() == ChessGame.TeamColor.BLACK && authData.username() == gameData.blackUsername() &&
+                    game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.BLACK)) {
+                //make sure the move is in valid moves
+                if(game.validMoves(makeMoveRequest.getMove().getStartPosition()).contains(makeMoveRequest.getMove())){
+                    //make ze move
+                    gameData.game().makeMove(makeMoveRequest.getMove());
+                    //upzate ze game
+                    gameDAO.updateGame(gameData);
 
-            //here we are going to do the stuff for the root user
-            gameData = gameDAO.getGame(makeMoveRequest.getGameID());
-            var loadGame = new LoadGame(gameData.game());
-            session.getRemote().sendString(new Gson().toJson(loadGame));
-            var messageToOtherClients = new Gson().toJson(loadGame);
-            sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
+                    //here we are going to do the stuff for the root user
+                    gameData = gameDAO.getGame(makeMoveRequest.getGameID());
+                    var loadGame = new LoadGame(gameData.game());
+                    session.getRemote().sendString(new Gson().toJson(loadGame));
+                    var messageToOtherClients = new Gson().toJson(loadGame);
+                    sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
 
-            //here we are broadcasting it to everyone else
-            var notificationMessage = String.format("%s %s was played", makeMoveRequest.getMove().getStartPosition(), makeMoveRequest.getMove().getStartPosition());
-            var notification = new Notification(notificationMessage);
-            messageToOtherClients = new Gson().toJson(notification);
-            sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
+                    //here we are broadcasting it to everyone else
+                    var notificationMessage = String.format("%s %s was played", makeMoveRequest.getMove().getStartPosition(), makeMoveRequest.getMove().getStartPosition());
+                    var notification = new Notification(notificationMessage);
+                    messageToOtherClients = new Gson().toJson(notification);
+                    sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
+                } else {
+                    var error = new Error("move is trash brother");
+                    session.getRemote().sendString(new Gson().toJson(error));
+                }
+            } else {
+                var error = new Error("why you trynna move someone else's piece");
+                session.getRemote().sendString(new Gson().toJson(error));
+            }
         }
     }
     private void resign(String message, Session session) throws Exception {
