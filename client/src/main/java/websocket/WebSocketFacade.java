@@ -27,7 +27,7 @@ public class WebSocketFacade extends Endpoint {
                 switch (serverMessage.getServerMessageType()) {
                     case NOTIFICATION -> gameHandler.notify(new Gson().fromJson(message, Notification.class));
                     case LOAD_GAME -> gameHandler.loadGame(new Gson().fromJson(message, LoadGame.class));
-                    //case ERROR -> leave(userGameCommand.getAuthString(), session);
+                    case ERROR -> gameHandler.error(new Gson().fromJson(message, Error.class));
                 }
             }
         });

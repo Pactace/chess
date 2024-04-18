@@ -9,6 +9,7 @@ import websocket.GameHandler;
 import websocket.ResponseException;
 import websocket.WebSocketFacade;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.BoardCreation.*;
@@ -95,7 +96,7 @@ public class GameplayUI implements GameHandler {
             }
         }
         else if(command.equalsIgnoreCase("resign")){
-
+            resign();
         }
         else if(command.equalsIgnoreCase("leave")) {
             //here all we need to do is take the user out
@@ -105,6 +106,31 @@ public class GameplayUI implements GameHandler {
             } catch (ResponseException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private void resign() {
+        System.out.print("\u001b[104;1m");
+        System.out.print("\u001b[30;1m");
+        System.out.println("To confirm the resign either type 'Y' or 'N':");
+
+        System.out.print("\u001b[49;m");
+        System.out.print("\u001b[33;1m");
+        System.out.printf("[CONFIRM YOUR CHOICE]>>>");
+
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+        if(Objects.equals(line, "Y")) {
+            try {
+                webSocketFacade.resign(authToken, gameID);
+            } catch (ResponseException e) {
+                System.out.print("\u001b[31;1m");
+                System.out.println("we got a problem");
+            }
+        }
+        else{
+            System.out.print("\u001b[31;1m");
+            System.out.println("Canceled resign request");
         }
     }
 

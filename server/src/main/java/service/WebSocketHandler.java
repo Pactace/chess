@@ -1,6 +1,8 @@
 package service;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import dataAccess.Interfaces.AuthDAO;
@@ -146,7 +148,7 @@ public class WebSocketHandler {
         if((authData.username() != null) || (gameDAO.getGame(makeMoveRequest.getGameID()) != null)){
             //here we make sure only the person who's turn it is playing and that they are touching the right piece
             ChessGame game = gameData.game();
-            if(!gameDAO.getGame(makeMoveRequest.getGameID()).game().isGameOver()) {
+            if(!game.isGameOver()) {
                 if ((game.getTeamTurn() == ChessGame.TeamColor.WHITE && authData.username().equals(gameData.whiteUsername())  &&
                         game.getBoard().getPiece(makeMoveRequest.getMove().getStartPosition()).getTeamColor() == ChessGame.TeamColor.WHITE) || (
                         game.getTeamTurn() == ChessGame.TeamColor.BLACK && authData.username().equals(gameData.blackUsername()) &&
@@ -166,22 +168,24 @@ public class WebSocketHandler {
                         sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
 
                         //here we are broadcasting it to everyone else
-                        var notificationMessage = String.format("%s %s was played", makeMoveRequest.getMove().getStartPosition(), makeMoveRequest.getMove().getStartPosition());
+                        var notificationMessage = String.format("%s %s was played",
+                                convertPositionToString(makeMoveRequest.getMove().getStartPosition()),
+                                convertPositionToString(makeMoveRequest.getMove().getEndPosition()));
                         var notification = new Notification(notificationMessage);
                         messageToOtherClients = new Gson().toJson(notification);
                         sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
 
                         if(gameData.game().isInCheckmate(gameData.game().getTeamTurn())){
                             notificationMessage = String.format("CHECKMATE!!! THE GAME IS OVER");
-                            sendMessageToEveryone(session, makeMoveRequest, gameData, loadGame, notificationMessage, true);
+                            sendNotificationToEveryone(session, makeMoveRequest, gameData, loadGame, notificationMessage, true);
                         }
                         else if(gameData.game().isInCheck(gameData.game().getTeamTurn())){
                             notificationMessage = String.format("CHECK!!!");
-                            sendMessageToEveryone(session, makeMoveRequest, gameData, loadGame, notificationMessage, false);
+                            sendNotificationToEveryone(session, makeMoveRequest, gameData, loadGame, notificationMessage, false);
                         }
                         else if(gameData.game().isInStalemate(gameData.game().getTeamTurn())){
                             notificationMessage = String.format("STALEMATE!!! THE GAME IS OVER");
-                            sendMessageToEveryone(session, makeMoveRequest, gameData, loadGame, notificationMessage, true);
+                            sendNotificationToEveryone(session, makeMoveRequest, gameData, loadGame, notificationMessage, true);
                         }
                     } else {
                         var error = new Error("move is trash brother");
@@ -198,14 +202,21 @@ public class WebSocketHandler {
         }
     }
 
-    private void sendMessageToEveryone(Session session, MakeMove makeMoveRequest, GameData gameData, LoadGame loadGame, String notificationMessage, boolean gameOver) throws DataAccessException, IOException {
+    private String convertPositionToString(ChessPosition position){
+        char[] colLetterList = {'a','b','c','d','e','f','g','h'};
+        char colLetter = colLetterList[position.getColumn() - 1];
+
+        return colLetter + "" + position.getRow();
+    }
+
+    private void sendNotificationToEveryone(Session session, MakeMove makeMoveRequest, GameData gameData, LoadGame loadGame, String notificationMessage, boolean gameOver) throws DataAccessException, IOException {
         Notification notification;
         String messageToOtherClients;
         gameData.game().setGameOver(gameOver);
         gameDAO.updateGame(gameData);
         notification = new Notification(notificationMessage);
         session.getRemote().sendString(new Gson().toJson(notification));
-        messageToOtherClients = new Gson().toJson(loadGame);
+        messageToOtherClients = new Gson().toJson(notification);
         sessionsManager.sendToOtherClients(makeMoveRequest.getGameID(), makeMoveRequest.getAuthString(), messageToOtherClients);
     }
 

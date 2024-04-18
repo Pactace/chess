@@ -53,7 +53,6 @@ public class SQLUserDAO implements UserDAO {
     void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-
             var createUserTable = """
             CREATE TABLE IF NOT EXISTS user (
                 username VARCHAR(255) NOT NULL,

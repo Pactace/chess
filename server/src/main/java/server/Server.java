@@ -181,7 +181,6 @@ public class Server {
         }
         catch(Exception e){
             res.status(500);
-            e.printStackTrace();
             return new Gson().toJson(new ErrorMessageResponse(e.getMessage()));
         }
     }

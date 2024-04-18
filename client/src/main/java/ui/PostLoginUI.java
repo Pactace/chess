@@ -55,66 +55,13 @@ public class PostLoginUI {
      */
     private int commandCheck(String command){
         if(command.equalsIgnoreCase("help")){
-            //here we print the header
-            System.out.print("\u001b[104;1m");
-            System.out.print("\u001b[30;1m");
-            System.out.println("Commands that you can use on this page:");
-
-            //then we go to the body
-            System.out.print("\u001b[107;1m");
-            System.out.print("\u001b[34;1m");
-            System.out.println("'help' - it refreshes you on the commands");
-            System.out.println("'list' - check out all the games on the server");
-            System.out.println("'create' - here you can create a new game, remember you still have to use the join game if you want to play");
-            System.out.println("'join' - get playing! specify the game you want to play with the game id and the color and we'll join you right up");
-            System.out.println("'observe' - just watching? use this function by entering the game id");
-            System.out.print("\u001b[31;1m");
-            System.out.println("'logout' - this will end your session with us and send you back to the login page");
+            help();
         }
         else if(command.equalsIgnoreCase("list")){
-            //Here we are going to enter the username and password separated by spaces.
-            try {
-                System.out.print("\u001b[45;1m");
-                System.out.print("\u001b[30;1m");
-                System.out.println("List of Games:");
-                GameData[] games = serverFacade.listGames();
-                for(GameData game: games){
-                    System.out.println("Game ID: "+ game.gameID() + " Game Name: " + game.gameName() +
-                            " White Player: " + game.whiteUsername() + " Black Player: " + game.blackUsername());
-                }
-            }
-            catch(Exception e){
-                System.out.print(e.getMessage());
-            }
+            list();
         }
         else if(command.equalsIgnoreCase("create")){
-            //Here we are going to enter the username and password separated by spaces.
-            System.out.print("\u001b[104;1m");
-            System.out.print("\u001b[30;1m");
-            System.out.println("To create a new game enter your data like this (without single quotes all one word):");
-            System.out.print("\u001b[107;1m");
-            System.out.print("\u001b[35;1m");
-            System.out.println("'Game Name'");
-
-            System.out.print("\u001b[49;m");
-            System.out.print("\u001b[33;1m");
-            System.out.printf("[ENTER NEW GAME NAME]>>>");
-
-            Scanner scanner = new Scanner(System.in);
-            String line = scanner.nextLine();
-            var gameParams = line.split(" ");
-            if(gameParams.length != 1){
-                System.out.println("what part about only 1 word do you not understand?");
-            }
-            else{
-                try{
-                    serverFacade.createGame(line);
-                }
-                catch(Exception e){
-                    System.out.println("Sorry we cant make that for you right now for some reason, probably your own goonish behavior");
-                }
-            }
-
+            create();
         }
         else if(command.equalsIgnoreCase("join")){
             //Here we are going to enter the username and password separated by spaces.
@@ -191,5 +138,66 @@ public class PostLoginUI {
             System.out.println("Type 'help' if you need to see the commands again, you goon");
         }
         return 0;
+    }
+    private void help(){
+        //here we print the header
+        System.out.print("\u001b[104;1m");
+        System.out.print("\u001b[30;1m");
+        System.out.println("Commands that you can use on this page:");
+
+        //then we go to the body
+        System.out.print("\u001b[107;1m");
+        System.out.print("\u001b[34;1m");
+        System.out.println("'help' - it refreshes you on the commands");
+        System.out.println("'list' - check out all the games on the server");
+        System.out.println("'create' - here you can create a new game, remember you still have to use the join game if you want to play");
+        System.out.println("'join' - get playing! specify the game you want to play with the game id and the color and we'll join you right up");
+        System.out.println("'observe' - just watching? use this function by entering the game id");
+        System.out.print("\u001b[31;1m");
+        System.out.println("'logout' - this will end your session with us and send you back to the login page");
+    }
+    private void list(){
+        //Here we are going to enter the username and password separated by spaces.
+        try {
+            System.out.print("\u001b[45;1m");
+            System.out.print("\u001b[30;1m");
+            System.out.println("List of Games:");
+            GameData[] games = serverFacade.listGames();
+            for(GameData game: games){
+                System.out.println("Game ID: "+ game.gameID() + " Game Name: " + game.gameName() +
+                        " White Player: " + game.whiteUsername() + " Black Player: " + game.blackUsername());
+            }
+        }
+        catch(Exception e){
+            System.out.print(e.getMessage());
+        }
+    }
+    private void create(){
+        //Here we are going to enter the username and password separated by spaces.
+        System.out.print("\u001b[104;1m");
+        System.out.print("\u001b[30;1m");
+        System.out.println("To create a new game enter your data like this (without single quotes all one word):");
+        System.out.print("\u001b[107;1m");
+        System.out.print("\u001b[35;1m");
+        System.out.println("'Game Name'");
+
+        System.out.print("\u001b[49;m");
+        System.out.print("\u001b[33;1m");
+        System.out.printf("[ENTER NEW GAME NAME]>>>");
+
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+        var gameParams = line.split(" ");
+        if(gameParams.length != 1){
+            System.out.println("what part about only 1 word do you not understand?");
+        }
+        else{
+            try{
+                serverFacade.createGame(line);
+            }
+            catch(Exception e){
+                System.out.println("Sorry we cant make that for you right now for some reason, probably your own goonish behavior");
+            }
+        }
     }
 }

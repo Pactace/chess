@@ -36,17 +36,17 @@ public class ServerFacade {
     //post-login
     public GameData[] listGames() throws Exception {
         var path = "/game";
-        record listGameResponse(GameData[] games) {
+        record ListGameResponse(GameData[] games) {
         }
-        var response = this.makeRequest("GET", path, null, listGameResponse.class);
+        var response = this.makeRequest("GET", path, null, ListGameResponse.class);
         return response.games();
     }
 
     public int createGame(String gameName) throws Exception {
         var path = "/game";
         GameData newGame = new GameData(null, null,null,gameName, null);
-        record createGameResponse(Integer gameID) { }
-        return this.makeRequest("POST", path, newGame, createGameResponse.class).gameID;
+        record CreateGameResponse(Integer gameID) { }
+        return this.makeRequest("POST", path, newGame, CreateGameResponse.class).gameID;
     }
 
     public void joinOrObserveGame(int gameID, String playerColor) throws Exception {

@@ -54,58 +54,10 @@ public class PreLoginUI {
      */
     private boolean commandCheck(String command){
         if(command.equalsIgnoreCase("help")){
-            //here we print the header
-            System.out.print("\u001b[104;1m");
-            System.out.print("\u001b[30;1m");
-            System.out.println("Commands that you can use on this page:");
-
-            //then we go to the body
-            System.out.print("\u001b[107;1m");
-            System.out.print("\u001b[34;1m");
-            System.out.println("'help' - it refreshes you on the commands");
-            System.out.println("'register' - put in a name, password and email and join the club :D");
-            System.out.println("'login' - if your are already a member, put in your username and password");
-            System.out.print("\u001b[31;1m");
-            System.out.println("'quit' - this will end the program");
-
-
-            //then we reset everything
-            System.out.print("\u001b[49;m");
+            help();
         }
         else if(command.equalsIgnoreCase("login")){
-            //Here we are going to enter the username and password separated by spaces.
-            System.out.print("\u001b[104;1m");
-            System.out.print("\u001b[30;1m");
-            System.out.println("To login to a old account enter your data like this (without single quotes, spaces between each field):");
-            System.out.print("\u001b[107;1m");
-            System.out.print("\u001b[35;1m");
-            System.out.println("'Username' 'Password'");
-
-            System.out.print("\u001b[49;m");
-            System.out.print("\u001b[33;1m");
-            System.out.printf("[ENTER YOUR LOGIN INFO]>>>");
-
-            Scanner scanner = new Scanner(System.in);
-            String line = scanner.nextLine();
-            var loginData = line.split(" ");
-
-            //if the login data is good move over to the next issue.
-            if(loginData.length == 2){
-                UserData newUser = new UserData(loginData[0], loginData[1], null);
-                try{
-                    AuthData authData = serverFacade.login(newUser);
-                    loggedInUsername = authData.username();
-                    authToken = authData.authToken();
-                    return true;
-                }
-                catch(Exception e){
-                    System.out.println("Theres a problem with your login you goon either you dont exist or you dont remember your password");
-                }
-            }
-            else {
-                System.out.print("\u001b[31;1m");
-                System.out.println("Theres a problem with your login you goon");
-            }
+            return login();
         }
         else if(command.equalsIgnoreCase("register")){
             //Here we are going to enter the username and password separated by spaces.
@@ -128,7 +80,7 @@ public class PreLoginUI {
             if(loginData.length == 3){
                 UserData newUser = new UserData(loginData[0], loginData[1], loginData[2]);
                 try{
-                    AuthData authData = serverFacade.login(newUser);
+                    AuthData authData = serverFacade.register(newUser);
                     loggedInUsername = authData.username();
                     authToken = authData.authToken();
                     return true;
@@ -156,6 +108,61 @@ public class PreLoginUI {
             System.out.print("\u001b[31;1m");
             System.out.println("Theres a problem with your command, please make sure there are no extra letters or spaces");
             System.out.println("Type 'help' if you need to see the commands again, you goon");
+        }
+        return false;
+    }
+    private void help(){
+        //here we print the header
+        System.out.print("\u001b[104;1m");
+        System.out.print("\u001b[30;1m");
+        System.out.println("Commands that you can use on this page:");
+
+        //then we go to the body
+        System.out.print("\u001b[107;1m");
+        System.out.print("\u001b[34;1m");
+        System.out.println("'help' - it refreshes you on the commands");
+        System.out.println("'register' - put in a name, password and email and join the club :D");
+        System.out.println("'login' - if your are already a member, put in your username and password");
+        System.out.print("\u001b[31;1m");
+        System.out.println("'quit' - this will end the program");
+
+
+        //then we reset everything
+        System.out.print("\u001b[49;m");
+    }
+    private boolean login(){
+        //Here we are going to enter the username and password separated by spaces.
+        System.out.print("\u001b[104;1m");
+        System.out.print("\u001b[30;1m");
+        System.out.println("To login to a old account enter your data like this (without single quotes, spaces between each field):");
+        System.out.print("\u001b[107;1m");
+        System.out.print("\u001b[35;1m");
+        System.out.println("'Username' 'Password'");
+
+        System.out.print("\u001b[49;m");
+        System.out.print("\u001b[33;1m");
+        System.out.printf("[ENTER YOUR LOGIN INFO]>>>");
+
+        Scanner scanner = new Scanner(System.in);
+        String line = scanner.nextLine();
+        var loginData = line.split(" ");
+
+        //if the login data is good move over to the next issue.
+        if(loginData.length == 2){
+            UserData newUser = new UserData(loginData[0], loginData[1], null);
+            try{
+                AuthData authData = serverFacade.login(newUser);
+                loggedInUsername = authData.username();
+                authToken = authData.authToken();
+                return true;
+            }
+            catch(Exception e){
+                System.out.println("Theres a problem with your login you goon either you dont exist or you dont remember your password");
+            }
+        }
+        else {
+            System.out.print("\u001b[31;1m");
+            System.out.println("Theres a problem with your login you goon");
         }
         return false;
     }
